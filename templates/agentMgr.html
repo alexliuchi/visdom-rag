@@ -1,0 +1,60 @@
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <!-- 引入本地 Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='agentmgr.css') }}">
+    <style>
+
+    </style>
+</head>
+<body>
+    <script>
+         // 标签切换功能
+        function switchTab(evt, tabName) {
+            // 切换按钮状态
+            document.querySelectorAll('.agent-mgr-tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            evt.currentTarget.classList.add('active');
+
+            // 切换内容显示
+            document.querySelectorAll('.agent-mgr-tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            document.getElementById(tabName).style.display = 'block';
+        }
+    </script>
+    <div class="agent-mgr-container">
+        <!-- 标签导航 -->
+        <div class="agent-mgr-tab-nav">
+            <button class="agent-mgr-tab-btn active" onclick="switchTab(event, 'agent')">智能体</button>
+            <button class="agent-mgr-tab-btn" onclick="switchTab(event, 'functions')">函数</button>
+            <button class="agent-mgr-tab-btn" onclick="switchTab(event, 'tools')">工具</button>
+            <button class="agent-mgr-tab-btn" onclick="switchTab(event, 'workflows')">工作流</button>
+            <button class="agent-mgr-tab-btn" onclick="switchTab(event, 'pipelines')">工作管线</button>
+            
+        </div>
+        <!--智能体 -->
+        <div id="agents" class="agent-mgr-tab-content" style="display: block;">
+            智能体(agent)能够迭代式的规划推理、自主工具调用，直至完成任务目标的智能助手。 敬请期待coming soon...
+        </div>
+        <!-- 函数 -->
+        <div id="functions" class="agent-mgr-tab-content" style="display: none;">
+            函数(function)是指大模型在生成响应时，可以调用外部定义的函数来获取回复结果。这些函数通常由开发者定义，用于实现特定的功能，比如获取实时数据、执行复杂的计算或与外部系统交互。这种设计使得大模型不再局限于其内置的知识库，而是能够动态地获取和处理信息.敬请期待coming soon...
+        </div>
+        <!--智能工具 -->
+        <div id="tools" class="agent-mgr-tab-content" style="display: none;">
+            工具(tool)是指为辅助大模型完成特定任务而设计的各种工具。这些工具可以是数据处理工具、模型训练框架、推理引擎、可视化工具等，它们与大模型结合使用，以增强模型的功能和性能。例如，使用Python的Pandas库进行数据预处理，使用TensorFlow或PyTorch等深度学习框架进行模型训练.敬请期待coming soon...
+        </div>
+        <!--工作流 -->
+        <div id="workflows" class="agent-mgr-tab-content" style="display: none;">
+            工作流(Workflow)是指将复杂任务分解为多个步骤，并通过预定义的流程实现自动化的方法。在大模型AI的背景下，工作流通过多次大模型调用和任务规划，解决了单次调用无法处理的复杂问题。其核心特点包括任务分解、流程编排、多轮调用和异常处理等 敬请期待coming soon...
+        </div>
+        <!--管线 -->
+        <div id="pipelines" class="agent-mgr-tab-content" style="display: none;">
+            管线(Pipeline) 是一种处理流程，将数据从输入到输出经过一系列处理步骤。在AI大模型应用中，它通常指的是一系列预定义的步骤，用于处理和转换数据，使其能够被模型有效地使用。例如，数据预处理、特征提取、模型训练和推理等步骤可以被组织成一个pipeline。 敬请期待coming soon...
+        </div>
+    </div>
+</body>
+</html>

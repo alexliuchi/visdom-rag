@@ -1,0 +1,165 @@
+<html>
+    <head>
+        <!-- 引入本地 Font Awesome 图标库 -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='database.css') }}">
+        <style>
+            body{
+                overflow-x: hidden;
+            }
+            #databaseMgr {
+               font-size:12px;
+               width: 95%;
+            }
+        </style>
+    </head>
+<body>
+    <script src="{{ url_for('static', filename='knowledgelib.js') }}"></script>
+    <div style="text-align: center;">
+        <img src="{{ url_for('static', filename='step2.png') }}"></img>
+    </div>
+    <!--知识库管理下的数据库的数据源管理-->
+    <div id="KBSettings">
+        <div class="panel">
+            <p style="font-weight: bold;"></p>
+            <!--  -->
+            <div class="sql-builder" style="border:1px solid #0066CC; margin-left:5px; border-radius: 4px;">
+                <form id="generalSettings">
+                    <!-- 左侧表结构 -->
+                    <div id="generalBasicInfo" class="schema-panel" style="padding-left: 5px; padding-bottom: 5px;">
+                        <p style="font-weight: bold;">当前所选文件</p>
+                    </div>
+                    <!-- 查询问题 -->
+                    <div class="schema-panel" style="padding-left: 5px; padding-bottom: 5px;">
+                        <p style="font-weight: bold;">查询问题</p>
+                        <div style="padding: 2px; background: #f8f9fa; margin: 4px; border-radius: 4px;">
+                            <textarea id="userQuestion" style="width:100%; padding:8px;box-sizing:border-box;" placeholder="请输入一个问题作为查询所选数据表数据作为知识库信息抽查预览,如product标中最贵的产品是什么?"></textarea>
+                        </div>
+                    </div>
+                    <!-- 自定义提示模板 -->
+                    <div class="schema-panel" style="padding-left: 5px; padding-bottom: 5px;">
+                        <p style="font-weight: bold;">自定义提示模板</p>
+                        <div style="padding: 2px; background: #f8f9fa; margin: 4px; border-radius: 4px;">
+                            <textarea id="promptTemplate" style="width:100%; padding:8px;box-sizing:border-box;" placeholder="你是一个图数据库专家。根据以下表结构：{schema}问题：{query_str}请生成一个安全的 查询."></textarea>
+                        </div>
+                    </div>
+                    <!-- 右侧预览 -->
+                    <div class="preview-panel" style="padding-left: 5px; padding-bottom: 5px;">
+                        <p id="previewInfoStatus" style="font-weight: bold;">预览信息</p>
+                        <pre id="preViewInfo" style="max-width: 100%;word-wrap: break-word; white-space: pre-wrap;background: #f8f9fa; border-radius: 4px;display:none;">
+                        </pre>
+                        <iframe id="htmlFileFrame" scr="{{ url_for('static', filename='preview.html') }}" style="width:90%;height:90%;border:none;display: none;"></iframe>
+                        <button id="previewBtn" class="btn btn-primary" type="submit">运行预览</button>
+                    </div>
+                </form>
+            </div>
+        <div style="margin-top: 15px;text-align: center;">
+            <button id="knowledgeBasePrevPage"onclick="gotoConnectDB()">上一步</button>&nbsp;&nbsp;&nbsp;&nbsp;
+            <button id="knowledgeBaseNextPage" onclick="gotoDBResListPage()" style="right:20%">下一步</button>
+        </div>
+    </div>
+    <script>
+         const form = document.getElementById('generalSettings');
+         const selectedItems = localStorage.getItem('selectedItems');
+         const basicInfo = document.getElementById('generalBasicInfo');
+         const databaseInfo = JSON.parse(localStorage.getItem('databaseInfo'));
+         const nextPageBtn = document.getElementById('knowledgeBaseNextPage');
+         nextPageBtn.isdisabled = true;
+         const selectedDatabase = JSON.parse(selectedItems)[0].database.split('-')[1];
+         basicInfo.innerHTML =  `<div style="padding: 8px; background: #f8f9fa; margin: 4px; border-radius: 4px;">
+                                    <div style="font-size: 0.9em; color: #666;">神笔马良.txt</div>
+                                </div>`;
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const userQuestion = document.getElementById('userQuestion');
+            const promptTemplate = document.getElementById('promptTemplate');
+            const contextStr = document.getElementById('contextStr');
+            const dbInfo = JSON.parse(localStorage.getItem('dbInfo'));
+            const databaseQueryData = {
+                "user_query": userQuestion.value,
+                "promptTemplate": promptTemplate.value,
+                "llm_model_name": localStorage.getItem('currentSelectedModel'),
+                "embedding_model_name": "quentinz/bge-large-zh-v1.5:latest",
+                "knowledgeKBName": localStorage.getItem('knowledgeBaseName'),
+                //"knowledgeKBDesc":dbInfo.knowledgeBaseDesc
+            }
+           
+            try {
+                const previewInfoStatus = document.getElementById('previewInfoStatus');
+                previewInfoStatus.innerHTML = '预览信息'+'<i class="fas fa-sync fa-spin"></i>';
+                const response = await fetch('http://127.0.0.1:5000/api/vrv-rag/knowledgegraph/prepare', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(databaseQueryData)
+                })
+
+                if (!response.ok) {
+                    throw new Error(`HTTP错误! 状态码: ${response.status}`);
+                }
+            
+               const result = await response.json();
+
+               const preViewInfo = document.getElementById('preViewInfo');
+               preViewInfo.style.display = 'block';
+               preViewInfo.textContent = result.response;
+               const knowledgeGraphName = localStorage.getItem('knowledgeBaseName');
+               loadHTMLFile(knowledgeGraphName,result.html_file);
+            } catch (error) {
+                preViewInfo.style.display = 'block';
+                preViewInfo.textContent = error.message;
+            }finally{
+                previewInfoStatus.innerHTML = '预览信息';
+                nextPageBtn.isdisabled = false;
+            }
+
+            const maxIndex = knowledgeLibList.length;
+            knowledgeLibList.push({ id: maxIndex + 1, title: dbInfo.knowledgeBaseName, description: "","description_1":  dbInfo.knowledgeBaseDesc,
+                        config: {
+                                "docs": {},
+                                "database":JSON.stringify(databaseQueryData),
+                }
+            });
+            localStorage.removeItem("currentknowledgebase");
+            localStorage.setItem("currentknowledgebase", JSON.stringify({ id: maxIndex + 1, title: dbInfo.knowledgeBaseName, description: "","description_1":  dbInfo.knowledgeBaseDesc,
+                        config: {
+                                "docs": {},
+                                "database":JSON.stringify(databaseQueryData),
+                }
+            }));
+                
+        });
+
+        async function loadHTMLFile(knowledgeKBName, filename) {
+            try {
+                const response = await fetch(`files/kg/${knowledgeKBName}/${filename}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const htmlContent = await response.text();
+                document.getElementById('htmlFileFrame').style.display = 'block';
+                document.getElementById('htmlFileFrame').srcdoc = htmlContent;
+            } catch (error) {
+                preViewInfo.style.display = 'block';
+                preViewInfo.textContent = error.message;
+            }
+        }
+
+        function gotoConnectDB() {
+            window.parent.postMessage({
+                action: 'gotoConnectDBPage',
+                url: "{{ url_for('connectDB') }}"
+            }, 'http://127.0.0.1:5000'); // 替换为正确的域名
+        }
+        function gotoDBResListPage() {
+            window.parent.postMessage({
+                action: 'gotoDBResListPage',
+                url: "{{ url_for('knowledgeResList') }}"
+            }, 'http://127.0.0.1:5000'); // 替换为正确的域名
+
+            }
+    </script>
+    <script src="{{ url_for('static', filename='databases.js') }}"></script>
+</body>
+</html>

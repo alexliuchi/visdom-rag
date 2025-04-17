@@ -1,0 +1,327 @@
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="">
+    <style>
+        .evaluation-container {
+            margin-top: 50px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 80%;
+            font-size: 14px;
+        }
+        /**tooltips手机和PC兼容**/
+        .tooltip-container {
+            position: relative;
+            display: inline-block;
+        }      
+        .tooltip {
+            visibility: hidden;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+        }
+        .tooltip-container:hover .tooltip {
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        /**tooltips手机和PC兼容 控制不被屏幕遮挡**/
+        function adjustTooltip(container) {
+            const tooltip = container.querySelector('.tooltip');
+            const rect = tooltip.getBoundingClientRect();
+        
+            // 如果 Tooltip 超出页面顶部，则显示在元素下方
+            if (rect.top < 0) {
+                tooltip.style.bottom = 'auto';
+                tooltip.style.top = '125%';
+            } else {
+                tooltip.style.bottom = '125%';
+                tooltip.style.top = 'auto';
+            }
+        }
+    </script>
+    <div class="evaluation-container">
+        <p style="font-size:24px;font-weight: bold; text-align:center;">质量评估</p>
+        <hr>
+        <table id='user_evaluation_list' style='width:100%;font-size:12px;' title="注释说明：用户使用质量评估记录表">
+            <caption>
+            <strong style="font-size:20px;font-weight: bold;">用户使用质量评估记录表</strong><br>
+            <small style="font-size:12px">注释说明：我们会监控我们的系统对每位用户每次的问题所创建的应答,从三个核心指标:正确性(Correctness),忠诚度(Faithfulness),相关性(Relevance),使用三个不同智能体:(Agent1:Llamaindex,Agent2:DeepEval,Agent3:Uptrain)做质量评估.分值:0.00~1.00,1为最高</small>    
+            </caption>
+            <thead style="background-color: #F3F5FA;">
+            <tr>
+            <th colspan="6" style="text-align:center;font-weight: 900;">用户使用质量评估记录表</th> <!-- 使用 colspan 合并单元格 -->
+            </tr>
+            <tr style="font-weight: 800;">
+            <th class='' style='font-weight: bold;'>用户名</th>
+            <th class='' style='font-weight: bold;'>AI Agent 1</th>
+            <th class='' style='font-weight: bold;'>AI Agent 2</th>
+            <th class='' style='font-weight: bold;'>AI Agent 3</th>
+            <th class='' style='font-weight: bold;'>详细信息</th>
+            <th class='' style='font-weight: bold;'>检索问题提交时间</th>
+            </tr>
+            </thead>
+            <tbody id='evaluation_list_body'>
+            <tr>
+            <th style='width:60px'>81196-少将王伟</th>
+            <th class='' style=''><p>Correctness:1</p><p>Faithfulness:1</p><p>Relevance:1</p></th>
+            <th class='' style=''><p>Correctness:1</p><p>Faithfulness:0.9</p><p>Relevance:0.9</p></th>
+            <th class='' style=''><p>Correctness:1</p><p>Faithfulness:1</p><p>Relevance:1</p></th>
+            <th class='' style=''>
+            <div class="tooltip-container" onmouseover="adjustTooltip(this)">
+                详细信息
+                <div class="tooltip">
+                    <p>用户问题:你好吗？</p>
+                    <p>检索回答:还行！感谢</p>
+                </div>
+            </div>    
+            </th>
+            <th class='' style=''>2025-02-28 00：00：00</th>
+            </tr>
+            <tr>
+            <th style='width:60px'>梁文峰</th>
+            <th class='' style=''><p>Correctness:1</p><p>Faithfulness:1</p><p>Relevance:1</p></th>
+            <th class='' style=''><p>Correctness:1</p><p>Faithfulness:0.9</p><p>Relevance:0.9</p></th>
+            <th class='' style=''><p>Correctness:1</p><p>Faithfulness:1</p><p>Relevance:1</p></th>
+            <th class='' style=''>
+            <div class="tooltip-container" onmouseover="adjustTooltip(this)">
+                详细信息
+                <div class="tooltip">
+                    <p>用户问题:你好吗？</p>
+                    <p>检索回答:还行！感谢</p>
+                </div>
+            </div>    
+            </th>
+            <th class='' style=''>2025-02-28 00：00：00</th>
+            </tr>
+            <tr>
+            <th style='width:60px'>王兴兴</th>
+            <th class='' style=''><p>Correctness:1</p><p>Faithfulness:1</p><p>Relevance:1</p></th>
+            <th class='' style=''><p>Correctness:1</p><p>Faithfulness:0.9</p><p>Relevance:0.9</p></th>
+            <th class='' style=''><p>Correctness:1</p><p>Faithfulness:1</p><p>Relevance:1</p></th>
+            <th class='' style=''>
+            <div class="tooltip-container" onmouseover="adjustTooltip(this)">
+                详细信息
+                <div class="tooltip">
+                    <p>用户问题:你好吗？</p>
+                    <p>检索回答:还行！感谢</p>
+                </div>
+            </div>    
+            </th>
+            <th class='' style=''>2025-02-28 00：00：00</th>
+            </tr>
+            <tr>
+            <th style='width:60px'>杨植麟</th>
+            <th class='' style=''><p>Correctness:1</p><p>Faithfulness:1</p><p>Relevance:1</p></th>
+            <th class='' style=''><p>Correctness:1</p><p>Faithfulness:0.9</p><p>Relevance:0.9</p></th>
+            <th class='' style=''><p>Correctness:1</p><p>Faithfulness:1</p><p>Relevance:1</p></th>
+            <th class='' style=''>
+            <div class="tooltip-container" onmouseover="adjustTooltip(this)">
+                详细信息
+                <div class="tooltip">
+                    <p>用户问题:你好吗？</p>
+                    <p>检索回答:还行！感谢</p>
+                </div>
+            </div>
+            </th>
+            <th class='' style=''>2025-02-28 00：00：00</th>
+            </tr>
+            <tr>
+            <th style='width:60px'>稚辉君</th>
+            <th class='' style=''><p>Correctness:1</p><p>Faithfulness:1</p><p>Relevance:1</p></th>
+            <th class='' style=''><p>Correctness:1</p><p>Faithfulness:0.9</p><p>Relevance:0.9</p></th>
+            <th class='' style=''><p>Correctness:1</p><p>Faithfulness:1</p><p>Relevance:1</p></th>
+            <th class='' style=''>
+            <div class="tooltip-container" onmouseover="adjustTooltip(this)">
+                详细信息
+                <div class="tooltip">
+                    <p>用户问题:你好吗？</p>
+                    <p>检索回答:还行！感谢</p>
+                </div>
+            </div>
+            </th>
+            <th class='' style=''>2025-02-28 00：00：00</th>
+            </tr>
+            <tr>
+            <th style='width:60px'>雷布斯</th>
+            <th class='' style=''><p>Correctness:1</p><p>Faithfulness:1</p><p>Relevance:1</p></th>
+            <th class='' style=''><p>Correctness:1</p><p>Faithfulness:0.9</p><p>Relevance:0.9</p></th>
+            <th class='' style=''><p>Correctness:1</p><p>Faithfulness:1</p><p>Relevance:1</p></th>
+            <th class='' style=''>
+            <div class="tooltip-container" onmouseover="adjustTooltip(this)">
+                详细信息
+                <div class="tooltip">
+                    <p>用户问题:你好吗？</p>
+                    <p>检索回答:还行！感谢</p>
+                </div>
+            </div>
+            </th>
+            <th class='' style=''>2025-02-28 00：00：00</th>
+            </tr>
+            <tr>
+            <th style='width:60px'>雷布斯</th>
+            <th class='' style=''><p>Correctness:1</p><p>Faithfulness:1</p><p>Relevance:1</p></th>
+            <th class='' style=''><p>Correctness:1</p><p>Faithfulness:0.9</p><p>Relevance:0.9</p></th>
+            <th class='' style=''><p>Correctness:1</p><p>Faithfulness:1</p><p>Relevance:1</p></th>
+            <th class='' style=''>
+            <div class="tooltip-container" onmouseover="adjustTooltip(this)">
+                详细信息
+                <div class="tooltip">
+                    <p>用户问题:你好吗？</p>
+                    <p>检索回答:还行！感谢</p>
+                </div>
+            </div>
+            </th>
+            <th class='' style=''>2025-02-28 00：00：00</th>
+            </tr>
+            </tbody>
+            <tfoot>
+            <tr>
+            <td colspan="6" style="text-align: left; font-size: 12px;">
+            注释说明：
+            <ul>
+                <li>1.忠诚度/忠实性(Faithfulness): 定义为衡量生成的答案是否忠实于检索到的上下文（context）。它关注的是答案中的信息是否完全基于检索到的内容，避免“幻觉”或生成无关信息。重要性是确保生成内容与检索到的上下文一致，防止模型编造事实。</li>
+                <li>2.相关性(Relevance): 定义为衡量检索到的上下文或生成的答案是否与用户查询（query）直接相关。它关注的是检索结果是否能够满足用户的实际需求.重要性是确保检索到的信息和生成的答案与用户意图高度匹配。</li>
+                <li>3.正确性(Correctness):定义为衡量生成的答案是否忠实于检索到的上下文（context）。它关注的是答案中的信息是否完全基于检索到的内容，避免“幻觉”或生成无关信息。重要性是确保生成内容无事实错误，提升用户信任。</li>
+                <li>4.三者的关系与作用:Faithfulness 和 Correctness 是互补的：Faithfulness 强调生成内容与检索到的上下文的一致性; Correctness 强调生成内容是否符合真实世界的情况;Relevance 则从用户需求的角度出发，确保检索和生成的内容能够真正解决用户问题。</li>
+            </ul>
+            </td>
+            </tr>
+            </tfoot>
+        </table>
+        <br>
+        <hr>
+        <table id="sys_evaluaton_list" style='width:100%;font-size:12px;' title="注释说明：系统测试质量评估记录表">
+            <caption>
+            <strong style="font-size:20px;font-weight: bold;">系统测试质量评估记录表</strong><br>
+            <small style="font-size:12px">注释说明：系统测试质量评估相比较用户使用质量评估更全面(指标更多),更细致(涉及到智能检索系统RAG相关地层技术实现的各个环节如应用大语言模型(多个:多种:文字处理模型，多模态的图片和视觉模型，嵌入式模型(embedding model)和重排模型(rerank model)等)，对数据的向量化,存储,检索、排序、召回、消歧、融合、生成等。</small>
+            </caption>
+            <thead style="background-color: #F3F5FA;">
+                <tr style="font-weight: 900;">
+                <th colspan="6" style="font-weight: bold;">Response Evaluation</th>
+                <th colspan="6" style="font-weight: bold;">Retrieval Evaluation</th>
+                <th colspan="1" rowspan="2" style="font-weight: bold;">Evaluation Summary</th>
+                </tr>
+                <tr style="text-align: center;">
+                <th>Faithfulness</th>
+                <th>Relevancy</th>
+                <th>Answer and Context Relevancy</th>
+                <th>Guideline</th>
+                <th>Correctness</th>
+                <th>Semantic</th>
+                <th style="">hit_rate</th>
+                <th style="">mrr</th>
+                <th style="">precision</th>
+                <th style="">recall</th>
+                <th style="">ap</th>
+                <th style="">ndcg</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="text-align: center;">
+                <td>0.786</td>
+                <td>0.886</td>
+                <td>0.686</td>
+                <td>0.786</td>
+                <td>0.894</td>
+                <td>0.982</td>
+                <td>1</td>
+                <td>1</td>
+                <td>0.667</td>
+                <td>1</td>
+                <td>1</td>
+                <td>0.876</td>
+                <td style="text-align:left;">
+                <div class="tooltip-container" onmouseover="adjustTooltip(this)">
+                详细信息
+                <div class="tooltip">
+                    <p>评估标题:Word中的表格检索质量评估-1</p>
+                    <p>评估检索问题:50个</p>
+                    <p>评估对应文件:LNG储罐施工程序.docx</p>
+                    <p>评估使用的标记检索数据集:<a>(LabelledRagDataset)</a></p>
+                    <p>检索批量评估时间:2024-12-06 16:32:33</p>
+                    <p style="background-color:blue;color:white">状态:良好</p>
+                </div>
+                </div>
+                </td>
+                </tr>
+                <tr style="text-align: center;">
+                <td>0.886</td>
+                <td>0.886</td>
+                <td>0.686</td>
+                <td>1</td>
+                <td>1</td>
+                <td>0.667</td>
+                <td>0.876</td>
+                <td>0.786</td>
+                <td>1</td>
+                <td>1</td>
+                <td>0.894</td>
+                <td>0.982</td>
+                <td style="text-align:left;">
+                <div class="tooltip-container" onmouseover="adjustTooltip(this)">
+                详细信息
+                <div class="tooltip">
+                    <p>评估标题:Word中的表格检索质量评估-2</p>
+                    <p>评估检索问题:102个</p>
+                    <p>评估对应文件:LNG储罐施工程序.docx;PE管焊接施工记录表.doc</p>
+                    <p>评估使用的标记检索数据集:<a>(LabelledRagDataset)</a></p>
+                    <p>检索批量评估时间:2024-12-03 15:00:03</p>
+                    <p style="background-color:green;color:white">状态:一般</p>  
+                </div>
+                </div>
+                </td>
+                </tr>
+                <tr style="text-align: center;">
+                <td>0.986</td>
+                <td>0.754</td>
+                <td>0.686</td>
+                <td>1</td>
+                <td>0.876</td>
+                <td>0.786</td>
+                <td>1</td>
+                <td>0.667</td>
+                <td>1</td>
+                <td>0.894</td>
+                <td>0.982</td>
+                <td>1</td>
+                <td style="text-align:left;">
+                <div class="tooltip-container" onmouseover="adjustTooltip(this)">
+                详细信息
+                <div class="tooltip">
+                    <p>评估标题:--</p>
+                    <p>评估检索问题:102个</p>
+                    <p>评估对应文件:LNG储罐施工程序.docx;PE管焊接施工记录表.doc;LNG接收站运行仿真系统设计.doc</p>
+                    <p>评估使用的标记检索数据集:<a>(LabelledRagDataset)</a></p>
+                    <p>检索批量评估时间:2024-12-01 10:00:05</p>
+                    <p style="background-color:brown;color:white">状态:优秀</p>  
+                </div>
+                </div>
+                </td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                <td colspan="13" style="text-align: center; font-size: smaller;">
+                注释说明：系统测试质量评估记录表
+                </td>
+                </tr>
+                </tfoot>
+            </table>
+    </div>
+</body>
+</html>

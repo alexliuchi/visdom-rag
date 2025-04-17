@@ -1,0 +1,379 @@
+<html>
+    <head>
+        <!-- 引入本地 Font Awesome 图标库 -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <!-- 引入自定义样式单 -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='documents.css') }}">
+        <style>
+        .progress-container {
+            width: 300px;
+            background: #eee;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        #progress-bar {
+            height: 24px;
+            width: 0%;
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        #progress-text {
+            text-align: center;
+            padding: 5px;
+            font-family: monospace;
+        }
+        #startbtn {
+            cursor: pointer;
+        }
+        </style>
+    </head>
+<body>
+    <script src="{{ url_for('static', filename='documents.js') }}"></script>
+    <script src="{{ url_for('static', filename='knowledgelib.js') }}"></script>
+    <script>
+
+    </script>
+    <div style="text-align: center;">
+        <img src="{{ url_for('static', filename='step2.png') }}"></img>
+    </div>
+    <div class="knowledge-document-param-container" style="padding: 50px;margin-top: 20px;">
+        <!-- 分段设置 -->
+        <div class="knowledge-document-config-section"">
+            <div class="knowledge-document-section-title">📏 分段设置</div>
+            
+            <div class="knowledge-document-param-group">
+                <label>块大小 (chunk_size):</label>
+                <div>
+                    <input class="knowledge-document-input" type="number" id="chunkSize" min="128" max="2048" step="64" value="512">
+                    <div class="knowledge-document-param-hint">
+                        单个文本块的最大长度，较短的块适合精准匹配，较长的块保留更多上下文
+                        <div class="knowledge-document-recommendation">推荐：法律条款256 | 技术文档512 | 书籍1024</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="knowledge-document-param-group">
+                <label>重叠长度 (overlap):</label>
+                <div>
+                    <input class="knowledge-document-input" type="number" id="overlap" min="0" max="512" step="32" value="128">
+                    <div class="knowledge-document-param-hint">
+                        相邻文本块的重叠长度，用于保持上下文连贯性
+                        <div class="knowledge-document-recommendation">推荐：chunk_size的20-25%（如512→128）</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="knowledge-document-param-group">
+                <label>预处理规则:</label>
+                <div>
+                    <label><input class="knowledge-document-input" type="checkbox" checked> 去除特殊字符</label>
+                    <label><input class="knowledge-document-input" type="checkbox"> 保留表格结构</label>
+                    <label><input class="knowledge-document-input" type="checkbox" checked> 标准化编号格式</label>
+                    <div class="knowledge-document-param-hint">
+                        清理文本的预处理规则，根据文档类型选择
+                        <div class="knowledge-document-recommendation">技术文档：保留表格 | 合同文本：标准化编号</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 索引方式 -->
+        <div class="knowledge-document-config-section"">
+            <div class="knowledge-document-section-title">🔍 索引方式</div>
+            
+            <div class="knowledge-document-preset-template">
+                <label>预设模板:</label>
+                <select id="presetTemplate" onchange="updateTemplate(this.value)">
+                    <option value="high_quality">高质量模板</option>
+                    <option value="economic">经济型模板</option>
+                    <option value="custom">自定义</option>
+                </select>
+                <div class="knowledge-document-param-hint">
+                    预设配置模板，快速适配不同场景需求
+                    <div class="knowledge-document-recommendation">高质量：精确检索 | 经济型：资源优化</div>
+                </div>
+                
+                <div id="templateParams" style="margin-top:10px;">
+                    <div class="knowledge-document-param-group">
+                        <label>索引粒度:</label>
+                        <select>
+                            <option value="sentence">句子级</option>
+                            <option value="paragraph" selected>段落级</option>
+                        </select>
+                        <div class="knowledge-document-param-hint">
+                            索引的最小单位粒度
+                            <div class="knowledge-document-recommendation">法律文本：句子级 | 技术文档：段落级</div>
+                        </div>
+                    </div>
+                    <div class="knowledge-document-param-group">
+                        <label>索引刷新频率:</label>
+                        <input class="knowledge-document-input" type="number" value="60" min="10" step="5"> 分钟
+                        <div class="knowledge-document-param-hint">
+                            索引更新频率（分钟），高频更新保证时效性
+                            <div class="knowledge-document-recommendation">实时系统：10-30分钟 | 静态文档：60+分钟</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Embedding模型 -->
+        <div class="knowledge-document-config-section"">
+            <div class="knowledge-document-section-title">🧠 Embedding模型</div>
+            
+            <div class="knowledge-document-param-group">
+                <label>模型选择:<i class="fas fa-sync" style="cursor: pointer;" onclick="embedLoadModels()"></i></label>
+                <select id="embeddingModel">
+                    <option value="bge-large-zh">BGE-large-中文</option>
+                    <option value="text2vec">Text2Vec-large</option>
+                    <option value="custom">自定义模型</option>
+                </select>
+                <div class="knowledge-document-param-hint">
+                    选择适合文档语言的嵌入模型
+                    <div class="knowledge-document-recommendation">中文优先BGE | 多语言选Text2Vec</div>
+                </div>
+            </div>
+
+            <div class="knowledge-document-param-group">
+                <label>向量维度:</label>
+                <div>
+                    <input class="knowledge-document-input" type="number" value="768" disabled>
+                    <div class="knowledge-document-param-hint">
+                        嵌入向量的维度数，维度越高表征能力越强
+                        <div class="knowledge-document-recommendation">通用场景768 | 专业领域1024</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 检索设置 -->
+        <div class="knowledge-document-config-section"">
+            <div class="knowledge-document-section-title">⚡ 检索设置</div>
+            
+            <div class="knowledge-document-param-group">
+                <label>检索策略:</label>
+                <select>
+                    <option value="hybrid">混合检索（关键词+向量）</option>
+                    <option value="vector">纯向量检索</option>
+                    <option value="keyword">关键词检索</option>
+                </select>
+                <div class="knowledge-document-param-hint">
+                    平衡召回率和准确性的检索策略
+                    <div class="knowledge-document-recommendation">常规：混合检索 | 专业术语：关键词优先</div>
+                </div>
+            </div>
+
+            <div class="knowledge-document-param-group">
+                <label>返回结果数:</label>
+                <input class="knowledge-document-input" id="similarity_top_k" type="number" min="1" max="20" value="5">
+                <div class="knowledge-document-param-hint">
+                    单次检索返回的最大结果数量
+                    <div class="knowledge-document-recommendation">精准场景：3-5条 | 探索性检索：10+条</div>
+                </div>
+            </div>
+
+            <div class="knowledge-document-param-group">
+                <label>重排模型:</label>
+                <select>
+                    <option value="bge-reranker">BGE重排模型</option>
+                    <option value="ce">Cross-Encoder</option>
+                </select>
+                <div class="knowledge-document-param-hint">
+                    结果重排序模型，提升最终结果相关性
+                    <div class="knowledge-document-recommendation">中文内容：BGE | 复杂推理：Cross-Encoder</div>
+                </div>
+            </div>
+        </div>
+        <button id="startBtn" style="width:100%;padding:12px;background:#3498db;color:white;border:none;border-radius:4px;" 
+                onclick="processDocsBasedOnConfigs()">
+            开始处理
+        </button>
+        <div id="status"></div>
+        <div style="margin-top: 15px;text-align: center;">
+            <button id="knowledgeBasePrevPage"onclick="gotoUploadFilesPage()">上一步</button>&nbsp;&nbsp;&nbsp;&nbsp;
+            <button id="knowledgeBaseNextPage" onclick="gotoResListPage()" style="right:20%">下一步</button>
+        </div>
+    </div>
+    
+<script>
+    const statusDiv = document.getElementById('status');
+    async function processDocsBasedOnConfigs() {
+        try{
+            //console.log('knowledgeBaseDesc:',localStorage.getItem('knowledgeBaseDesc'));
+            //console.log('knowledgeBaseName:',localStorage.getItem('knowledgeBaseName'));
+            const btn = document.getElementById('startBtn');
+            const nextPageBtn = document.getElementById('knowledgeBaseNextPage');
+            nextPageBtn.disabled = true; // 禁用下一步按钮，必须点击处理，处理成功后再启用
+
+
+            const config = {
+                "chunk_size": document.getElementById("chunkSize").value,
+                "chunk_overlap": document.getElementById("overlap").value,
+                "llm_model_name": localStorage.getItem('currentSelectedModel'),
+                "embedding_model_name": document.getElementById("embeddingModel").value,
+                "similarity_top_k": document.getElementById("similarity_top_k").value,
+                "knowledge_base_name" : localStorage.getItem('knowledgeBaseName'),
+                "process_mode":localStorage.getItem('processMode')
+            }
+            localStorage.setItem("documents_config", JSON.stringify(config));
+            //console.log('knowledgeBaseName:',localStorage.getItem('knowledgeBaseName'));
+            //console.log('documents_config:',JSON.stringify(config));
+            if(knowledgeLibList !== null){
+                knowledgeLibList.map(item => {
+                    if (localStorage.getItem('knowledgeBaseName')) {
+                        if(item.title === localStorage.getItem('knowledgeBaseName')){
+                            return {
+                                ...item,
+                                ...config
+                            };
+                        }
+                    }
+                    return item;
+                });
+            }
+            //console.log('knowledgeLibList:',knowledgeLibList);
+            //console.log('knowledgeBaseName:',localStorage.getItem('knowledgeBaseName'));
+            
+            const maxIndex = knowledgeLibList.length;
+            knowledgeLibList.push({ id: maxIndex + 1, title: localStorage.getItem('knowledgeBaseName'), description: "","description_1":  localStorage.getItem('knowledgeBaseDesc'),
+                        config: {
+                                "docs": JSON.stringify(config),
+                                "database":{
+                                },
+                }
+            });
+            //console.log('knowledgeLibList:',knowledgeLibList);
+            localStorage.removeItem("currentknowledgebase");
+            localStorage.setItem("currentknowledgebase", JSON.stringify({ id: maxIndex + 1, title: localStorage.getItem('knowledgeBaseName'), description: "","description_1":  localStorage.getItem('knowledgeBaseDesc'),
+                        config: {
+                                "docs": JSON.stringify(config),
+                                "database":{
+                                },
+                }
+            }));
+            statusDiv.innerHTML = '<i class="fas fa-sync fa-spin"></i>'
+            const response = await fetch('http://127.0.0.1:5000/api/vrv-rag/docs', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(config),
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP错误! 状态码: ${response.status}`);
+            }
+            const result = await response.json();
+            statusDiv.innerHTML = ''
+            statusDiv.innerHTML = result.message || '处理文件成功！点击下一步查看结果';
+            nextPageBtn.disabled = false; 
+
+            let uploadStatus = JSON.parse(localStorage.getItem("uploadStatus"));
+            const currentDatetime = new Date();
+            if (uploadStatus && typeof uploadStatus === 'object') {
+                // 获取files数组
+                let filesArray = uploadStatus.files;
+                documentData = []
+                filesArray.map(function(file) {
+                    documentData.push({
+                        name: getFileName(file), 
+                        mode: "通用", 
+                        charCount: 100, 
+                        recallCount: 5, 
+                        uploadTime: currentDatetime.toLocaleString(), 
+                        status: "完成",
+                        "category":"文本文档"
+                    })
+                })
+            } else {
+                console.error('无法获取uploadStatus或其不是有效的对象');
+            }
+            
+        }catch(error){
+            // 上传失败处理
+            localStorage.setItem('uploadStatus', JSON.stringify({
+                success: false,
+                message: `上传失败: ${error.message}`
+            }));
+            // 保留窗口显示错误
+            statusDiv.className = 'error';
+            statusDiv.textContent = `上传失败: ${error.message}`;
+        }
+
+    }
+    function getFileName(filePath) {
+        // 使用 lastIndexOf 找到最后一个 '/' 或 '\' 的位置
+        const lastSlashIndex = filePath.lastIndexOf('/');
+        const lastBackslashIndex = filePath.lastIndexOf('\\');
+        
+        // 取较大的索引值
+        const lastSeparatorIndex = Math.max(lastSlashIndex, lastBackslashIndex);
+        
+        // 如果没有找到分隔符，直接返回整个字符串
+        if (lastSeparatorIndex === -1) {
+            return filePath;
+        }
+        
+        // 提取分隔符之后的部分
+        return filePath.substring(lastSeparatorIndex + 1);
+    }
+
+    function updateProgressDisplay(data) {
+        // 保持之前的进度更新逻辑
+        document.getElementById('overall-bar').style.width = data.overall + '%';
+        // ...其他显示更新
+    }
+    async function embedLoadModels(){
+            const selectModel = document.getElementById('embeddingModel');
+            try{
+                selectModel.innerHTML = '<option sytle="font-size=8px;" value="">加载中...</option>';
+
+                const response = await fetch('http://localhost:11434/api/tags');
+                
+                if (!response.ok) {
+                    console.log(response);
+                throw new Error(`HTTP 错误! 状态码: ${response.status}`);
+                }
+                const data = await response.json();
+                if(!data.models || data.models.length === 0){
+                    selectModel.innerHTML = '<option sytle="font-size=8px;" value="">无可用模型</option>';
+                    return;
+                }
+                selectModel.innerHTML = data.models.map(model => 
+                    `<option sytle="font-size=8px;" value="${model.name}">${model.name}</option>`)
+                    .join('');
+                if(data.length === 0){
+                    selectModel.innerHTML = '<option value="">没有模型用户</option>';
+                }
+            }catch(error){
+                selectModel.innerHTML = '<option value="">获取模型列表失败</option>';
+                modelDescription.innerHTML = 
+                '<p style="color:red;">获取模型列表失败</p>';
+                console.log('error:',error);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            embedLoadModels();
+        });
+
+        function gotoResListPage() {
+
+            // 向父窗口发送消息
+            window.parent.postMessage({
+                action: 'gotoRagSettings',
+                url: "{{ url_for('knowledgeResList') }}"
+            }, 'http://127.0.0.1:5000'); // 替换为正确的域名
+            
+        }
+        function gotoUploadFilesPage() {
+            // 向父窗口发送消息
+            window.parent.postMessage({
+                action: 'gotoUploadFilesPage',
+                url: "{{ url_for('uploadFiles') }}"
+            }, 'http://127.0.0.1:5000'); // 替换为正确的域名
+            
+        }
+</script>
+</body>
+</html>

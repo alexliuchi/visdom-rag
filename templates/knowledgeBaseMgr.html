@@ -1,0 +1,152 @@
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <!-- 引入本地 Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='knowledgelib.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='knowledgegraph.css') }}">
+    <style>
+        .knowledge-base-config-ui {
+            display:none;
+            position:fixed;
+            top:50%;
+            left:50%;
+            width:800px;
+            height:800px;
+            border:1px;
+            transform:translate(-50%,-50%);
+            background:white;
+            padding:20px;
+            z-index:1000;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .knowledge-graph-config-ui {
+            display:none;
+            position:fixed;
+            top:50%;
+            left:50%;
+            width:800px;
+            height:800px;
+            border:1px;
+            transform:translate(-50%,-50%);
+            background:white;
+            padding:20px;
+            z-index:1000;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        body {
+            overflow-x: hidden;
+        }
+    </style>
+</head>
+<body>
+    <script src="{{ url_for('static', filename='knowledgelib.js') }}"></script>
+    <script src="{{ url_for('static', filename='knowledgegraph.js') }}"></script>
+    <div class="kb-mgr-container">
+        <!-- 标签导航 -->
+        <div class="model-mgr-tab-nav">
+            <button class="kb-mgr-tab-btn active" onclick="switchTab(event, 'kbList')">知识库列表</button>
+            <button class="kb-mgr-tab-btn" onclick="switchTab(event, 'kgList')">知识图谱列表</button>
+            <button class="kb-mgr-tab-btn" onclick="switchTab(event, 'others')">其他</button>
+        </div>
+
+        <!-- 知识库列表 -->
+        <div id="kbList" class="kb-mgr-tab-content" style="display: block;">
+            <!--知识库列表容器-->
+            <div class="knowledge-lib-list-container" id="knowledgeLibListContainer"></div>
+        </div>
+
+        <!-- 知识图谱 -->
+        <div id="kgList" class="kb-mgr-tab-content" style="display: none;">
+            增添知识库普,即3D可视化知识库又提升系统检索的准确性、可解释性和推理能力 敬请期待 coming soon...
+            <div class="knowledge-graph-list-container" id="knowledgeGraphListContainer"></div>        
+        </div>
+
+        <!-- 预留 -->
+        <div id="others" class="kb-mgr-tab-content" style="display: none;">
+            coming soon...
+        </div>
+    </div>
+    <!-- 配置知识库页面 -->
+    <div id="openConfigKnowledgeBaseUI" class= 'knowledge-base-config-ui'>
+        <i class="fas fa-times" onclick="document.getElementById('openConfigKnowledgeBaseUI').style.display='none'" style="right:20px;top:8px;position:absolute;cursor: pointer;"></i>
+        <iframe id="uploadFrame" src="{{ url_for('knowledgeBaseConfig') }}"  scrolling="auto" style="border: none; margin: 0;padding: 0;width:95%; height:800px;background-color: #ffffff;overflow: hidden;"></iframe>
+    </div>
+    <!-- 配置知识库页面 -->
+    <div id="openConfigKnowledgeGraphUI" class= 'knowledge-graph-config-ui'>
+        <i class="fas fa-times" onclick="document.getElementById('openConfigKnowledgeGraphUI').style.display='none'" style="right:20px;top:8px;position:absolute;cursor: pointer;"></i>
+        <iframe id="uploadFrame" src="{{ url_for('knowledgeGraphConfig') }}"  scrolling="auto" style="border: none; margin: 0;padding: 0;width:95%; height:800px;background-color: #ffffff;overflow: hidden;"></iframe>
+    </div>
+    <script>
+        //初始化知识库列表
+        const knowledgeLib =  document.getElementById('knowledgeLibListContainer');
+        function generateContent(){
+            initKnowledgeBaseList(knowledgeLibList, knowledgeLib);
+            knowledgeLib.style.display = 'flex';
+            
+            // 向父窗口发送消息
+            window.parent.postMessage({
+                type: 'DYNAMIC_CONTENT_LOADED'
+            }, 'http://127.0.0.1:5000'); // 替换为你的域名
+        }
+
+        document.addEventListener('DOMContentLoaded', generateContent);
+
+        // 标签切换功能
+        function switchTab(evt, tabName) {
+            // 切换按钮状态
+            document.querySelectorAll('.kb-mgr-tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            evt.currentTarget.classList.add('active');
+
+            // 切换内容显示
+            document.querySelectorAll('.kb-mgr-tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            document.getElementById(tabName).style.display = 'block';
+            if(tabName === 'kgList'){
+                // 初始化知识图谱列表
+                const knowledgeGraphList =  document.getElementById('knowledgeGraphListContainer');
+                initKnowledgeGraphList(knowledgeGraphDataList, knowledgeGraphList);
+                knowledgeGraphList.style.display = 'flex';
+                
+            }
+        }
+        
+        function handleDataUpdate(msg) {
+            //console.log('收到消息handleDataUpdate::', msg);
+            knowledgeLibList.push(msg)
+            //console.log('updated knowledgeLibList:', knowledgeLibList);
+            initKnowledgeBaseList(knowledgeLibList, knowledgeLib);
+            document.getElementById('openConfigKnowledgeBaseUI').style.display='none';
+        }
+        // 打开上传窗口
+        function openConfigKnowledgeBaseUI() {
+            // 先清除旧状态
+            localStorage.removeItem('uploadStatus');
+            localStorage.removeItem('knowledgeBaseDesc');
+            localStorage.removeItem('knowledgeBaseName');
+            document.getElementById('openConfigKnowledgeBaseUI').style.display = 'block';
+            document.getElementById('uploadFrame').src = "{{ url_for('knowledgeBaseConfig') }}";
+        }
+        // 打开上传窗口
+        function openConfigKnowledgeGraphUI() {
+            // 先清除旧状态
+            localStorage.removeItem('uploadStatus');
+            localStorage.removeItem('knowledgeGraphDesc');
+            localStorage.removeItem('knowledgeGraphName');
+            document.getElementById('openConfigKnowledgeGraphUI').style.display = 'block';
+            document.getElementById('uploadFrame').src = "{{ url_for('knowledgeGraphConfig') }}";
+        }   
+    </script>
+   
+</body>
+</html>

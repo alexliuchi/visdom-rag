@@ -1,0 +1,1721 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <!-- 引入本地 Font Awesome 图标库 -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='centermenu.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}">
+        <style></style>
+    </head>
+<body>
+    <script src="{{ url_for('static', filename='common.js') }}"></script>
+    <script src="{{ url_for('static', filename='knowledgelib.js') }}"></script>
+    <script src="{{ url_for('static', filename='modelmgr.js') }}"></script>
+    <!-- 文件阅览器依赖库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.min.js"></script>
+    <script src="https://unpkg.com/mammoth@1.4.8/mammoth.browser.min.js"></script>
+    <!--Chatbot 会话标题-->
+    <div class="message-title-container" id="messageTitleContainer">
+        <p id="session-title"></p>
+        <input type="text" id="title-input" maxlength="30" style="display: none;">
+    </div>
+    <!-- 会话消息显示容器 -->
+    <div class="message-container" id="messageContainer"></div>
+    <!-- 消息输入容器-->
+    <div class="input-container">
+        <textarea id="textInput"  placeholder="请输入内容..."></textarea>
+        <div class="button-row">
+            <button id="mode-selection-button" class="left-item button-row-button" style="color:white;background-color: #0066CC;">
+                文字处理模型&nbsp;&nbsp; <i id="mode-selection-icon" class="fas fa-angle-down" style="background-color: #0066CC;"></i>
+            </button>
+            <button id="mode-selection-button1" class="left-item button-row-button" style="color:white;background-color: #0066CC;display:none;">
+                <i id="mode-selection-icon1" class="fas fa-globe" style="background-color: #0066CC;"></i>&nbsp;&nbsp;联网搜索 
+            </button>
+            <button id="bottom-menu-button" class="right-item button-row-button" style="background-color: #0066CC;">
+                <i id="bottom-menu-button-icon" class="fas fa-plus" style="color:white;"></i>
+            </button>
+            <button id="send-msg-button" onclick="sendMessage()" class="right-item button-row-button" style="background-color: #0066CC;">
+                <i class="fas fa-paper-plane send-icon" style="color:white;"></i>
+            </button>
+            <button class="scroll-button button-row-button" id="scrollButton" style="display: none;">
+                <i class="fas fa-chevron-down" style="color:#0066CC;background-color: transparent;"></i>
+            </button>
+        </div>
+    </div>
+
+     <!--底部菜单-->
+     <div class="bottom-menu-container">
+        <div class="bottom-menu-item">
+            <div class="bottom-menu-square">
+                <i class="fas fa-cog"></i>
+            </div>
+            <p class="bottom-menu-label">设置</p>
+        </div>
+        <div class="bottom-menu-item">
+            <div class="bottom-menu-square">
+                <i class="far fa-image"></i>
+            </div>
+            <p class="bottom-menu-label">照片</p>
+        </div>
+        <div class="bottom-menu-item">
+            <div class="bottom-menu-square">
+                <i class="fas fa-file-image"></i>
+            </div>
+            <p class="bottom-menu-label">本地文件</p>
+        </div>
+        <div class="bottom-menu-item">
+            <div class="bottom-menu-square">
+                <i class="fas fa-camera"></i>
+            </div>
+            <p class="bottom-menu-label">拍照</p>
+        </div>
+    </div>
+
+    <!--主区域下部中间菜单-->
+    <div id="modeSelectionContextMenu">
+        <div id="modeSelectionContextMenu1" style="display: none;">
+            <!--左上区域-->
+            <div id="centerMenuLeftTop">
+                <div class="dropdown">
+                    <div class="dropdown-title selected" id="currentSelctedModel">当前模型:</div>
+                    <select id="modelNames">
+                        <option value="" disabled selected>正在加载模型...</option>
+                    </select>&nbsp;&nbsp;<i class="fas fa-sync" style="cursor: pointer;" onclick="loadModels()"></i>
+                    
+                    <div class="dropdown-description" id="modelDescription"></div>
+                    </div>
+            </div>
+        
+            <!--左下区域左下区域&nbsp;&nbsp-->
+            <div id="centerMenuLeftBottom">
+                <div class="dropdown">
+                    <div class="dropdown-title selected" id="currentSelctedKG">当前知识库:</div>
+                    <select id="kgNames" onchange="getSelectedMKGName()">
+                        <option value="" disabled selected>正在加载模型...</option>
+                    </select>&nbsp;&nbsp;<i class="fas fa-sync" style="cursor: pointer;" onclick="loadKGs()"></i>
+                    <div class="dropdown-description" id="knowledgelibaryDescription"></div>
+                    </div>
+            </div>
+            
+            <!--右侧区域-->
+            <div id="centerMenuRight">
+                
+                <!-- 查询控件 -->
+                <div class="query-section">
+                    <input type="text" class="query-input" placeholder="搜索..." style="font: size 12px;">
+                    <table class="pagination-table">
+                    <thead>
+                        <tr>
+                        <th style="width: min-content;white-space: nowrap;padding: 0;">提示词模板</th>
+                        <th style="width: min-content;white-space: nowrap;padding: 0;">类别</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                        <td id="row1" style="width: min-content;white-space: nowrap;padding: 0;">确保用精确数字说明</td>
+                        <td id="row1" style="width: min-content;white-space: nowrap;padding: 0;">通讯类</td>
+                        </tr>
+                        <tr>
+                        <td id="row2" style="width: min-content;white-space: nowrap;padding: 0;">在投资时,风险承担大能力高，</td>
+                        <td id="row1" style="width: min-content;white-space: nowrap;padding: 0;">金融类</td>
+                        </tr>
+                        <tr>
+                        <td id="row3" style="width: min-content;white-space: nowrap;padding: 0;">鼠标双击把这行提示词直接填进输入框</td>
+                        <td id="row1" style="width: min-content;white-space: nowrap;padding: 0;">人事类</td>
+                        
+                        </tr>
+                        <tr>
+                        <td id="row4" style="width: min-content;white-space: nowrap;padding: 0;">请在简短的100字以内回答</td>
+                        <td id="row1" style="width: min-content;white-space: nowrap;padding: 0;">高效类</td>
+                        
+                        </tr>
+                        <tr>
+                        <td style="width: min-content;white-space: nowrap;padding: 0;" id="row5">请用中文回答问题</td>
+                        <td id="row1" style="width: min-content;white-space: nowrap;padding: 0;">办公类</td>
+                        
+                        </tr>
+                        <td style="width: min-content;white-space: nowrap;padding: 0;" id="row5">如果你没有找到相关信息，请直接说不知道</td>
+                        <td id="row1" style="width: min-content;white-space: nowrap;padding: 0;">情感类</td>
+                        
+                        </tr>
+                    </tr>
+                    <tr>
+                    <td id="row4" style="width: min-content;white-space: nowrap;padding: 0;">请在简短的100字以内回答</td>
+                    <td id="row1" style="width: min-content;white-space: nowrap;padding: 0;">高效类</td>
+                    </tr>
+                    <tr>
+                    <td style="width: min-content;white-space: nowrap;padding: 0;" id="row5">若你是一位天才科学家，</td>
+                    <td id="row1" style="width: min-content;white-space: nowrap;padding: 0;">情感类</td>
+                    
+                    </tr>
+                    <td style="width: min-content;white-space: nowrap;padding: 0;" id="row5">NSFW</td>
+                    <td id="row1" style="width: min-content;white-space: nowrap;padding: 0;">机智类</td>
+                    </tr>
+                    </tbody>
+                    </table>
+                    <div class="center-context-menu" id="center-context-menu">
+                        <p>删除</p>
+                        <p>修改</p>
+                    </div>
+                    </div>
+                </div>
+        
+            </div>
+        </div>
+    </div>
+    <!-- 自定义滚动条容器 -->
+    <div class="custom-scrollbar" id="scrollbar">
+        <div class="custom-scrollbar-thumb" id="thumb"></div>
+    </div>
+     <!-- toast 模式消息提示-->
+     <div class="toast-container">
+        <div class="toast-message" id="toastMessage"></div>
+    </div>
+    <!-- 文件浏览器弹窗容器 -->
+    <div id="modalMask" class="modal-mask">
+        <div class="modal-container">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <div id="preview"></div>
+        </div>
+    </div>
+
+    <script>
+        let model_name = "deepseek-r1:1.5b";
+        let current_user = "admin";
+        let isFirstMessage = true;
+        //溯源文档例子
+        const citedSourceItems = ['RAG Introduction Documentation.pdf', 'LNG福建福清项目环境保护标准.pdf', 
+            'LNG福建福清项目罐车操作说明.ppt', 'LNG福建福清项目罐车操作说明.txt', 
+            'LNG福建福清项目轮船卸载规范.pdf', 'LNG福建福清项目罐车操作说明一揽图.png']; 
+        //溯源概要信息
+        let citedSumTitle = '基于6个搜索2个知识库分类搜索来源';
+         // 页面加载时调用函数
+         getMaxDimensions();
+        // 页面加载时调用检测函数
+        detectDevice();
+        const menuBackgroundColor = "#F3F5FA";
+        const btnAndIconColor = "0066CC";
+        const inputContainerWidth = {"PC":"40%","Mobile":"95%"};
+        const inputContainerWidthMaxWidth = {"PC":window.innerWidth,"Mobile":"600px"};
+        const messageContainerWidth = {"PC":"40%","Mobile":"35%"};
+        const messageContainerWidthMaxWidth = {"PC":window.innerWidth,"Mobile":"600px"};
+        
+        function setMainLayout(inputContainer, messageContainer) {
+            if (detectDevice() === 'mobile') {
+                modeContextMenu.style.width = '80%';
+                modeContextMenu.style.height = '350px';
+
+                inputContainer.style.maxWidth = inputContainerWidthMaxWidth.Mobile;
+                inputContainer.style.width = inputContainerWidth.Mobile;
+
+                messageContainer.style.maxWidth = messageContainerWidthMaxWidth.Mobile;
+                messageContainer.style.width = messageContainerWidth.Mobile;
+            } else {
+                modeContextMenu.style.width = '600px';
+                modeContextMenu.style.height = '350px';
+
+                inputContainer.style.maxWidth = window.innerWidth;
+                inputContainer.style.width = inputContainerWidth.PC
+
+                messageContainer.style.maxWidth = window.innerWidth;
+                messageContainer.style.width = messageContainerWidth.PC;
+                messageContainer.style.fontSize = '14px';//问答消息区字体大小
+            }
+        }
+
+        async function loadModels(){
+            const currentModelName = document.getElementById('currentSelctedModel');
+            const selectModel = document.getElementById('modelNames');
+            const modelDescription = document.getElementById('modelDescription');
+            try{
+                selectModel.innerHTML = '<option sytle="font-size=8px;" value="">加载中...</option>';
+                modelDescription.innerHTML = '<p sytle="font-size=8px;">正在获取模型列表...</p>';
+
+                const response = await fetch('http://localhost:11434/api/tags');
+                
+                if (!response.ok) {
+                    console.log(response);
+                throw new Error(`HTTP 错误! 状态码: ${response.status}`);
+                }
+                const data = await response.json();
+                console.log('response:',response);
+                if(!data.models || data.models.length === 0){
+                    selectModel.innerHTML = '<option sytle="font-size=8px;" value="">无可用模型</option>';
+                    return;
+                }
+                selectModel.innerHTML = data.models.map((model, index) => 
+                    `<option sytle="font-size=8px;" value="${model.name}" ${index === 0 ? 'selected' : ''}>${model.name}</option>`)
+                    .join('');
+                const select_ = document.getElementById('modelNames');
+                model_name = select_.value;
+                localStorage.removeItem('currentSelectedModel');
+                localStorage.setItem('currentSelectedModel', select_.value);
+                currentModelName.innerHTML = '当前模型:' + select_.value;
+                console.log('slected model:',model_name);
+                modelDescription.innerHTML =  `
+                    <p sytle="font-size=8px;">版本: ${data.models[select_.selectedIndex].details?.family || '未知'}</p>
+                    <p sytle="font-size=8px;">参数: ${data.models[select_.selectedIndex].details?.parameter_size || '未知'}</p>
+                    <p sytle="font-size=8px;">格式: ${data.models[select_.selectedIndex].details?.format || '未知'}</p>
+                    <p sytle="font-size=8px;">大小: ${formatBytes(data.models[select_.selectedIndex].size)}</p>
+                    <p sytle="font-size=8px;">更新时间: ${new Date(data.models[select_.selectedIndex].modified_at).toLocaleString()}</p>
+                    `;
+                if(data.length === 0){
+                    selectModel.innerHTML = '<option value="">没有模型用户</option>';
+                }
+
+                switchSelectModelText(select_.value, modelListDataSet);
+            }catch(error){
+                selectModel.innerHTML = '<option value="">获取模型列表失败</option>';
+                modelDescription.innerHTML = 
+                '<p style="color:red;">获取模型列表失败</p>';
+                console.log('error:',error);
+            }
+        }
+        function switchSelectModelText(currentModelName, modelListDataSet){
+            const modelSelectBtn = document.getElementById('mode-selection-button');
+            const currentModelCategory = getModelCategory(currentModelName, modelListDataSet)
+            if(currentModelCategory === 'vlm'){
+                modelSelectBtn.innerHTML = `文字图片处理模型&nbsp;&nbsp; <i id="mode-selection-icon" class="fas fa-angle-down" style="background-color: #0066CC;"></i>`;
+            }else{
+                modelSelectBtn.innerHTML = `文字处理模型&nbsp;&nbsp; <i id="mode-selection-icon" class="fas fa-angle-down" style="background-color: #0066CC;"></i>`;
+            }
+        }
+        function formatBytes(bytes) {
+            if (!bytes) return '未知';
+            const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+            let size = bytes;
+            for (const unit of units) {
+            if (size < 1024) return `${size.toFixed(2)} ${unit}`;
+            size /= 1024;
+            }
+            return `${size.toFixed(2)} TB`;
+        }
+        window.addEventListener('DOMContentLoaded', () => {
+            loadModels();
+            getSelectedModelName();
+            loadKGs();
+            getSelectedMKGName();
+        });
+
+        function getSelectedModelName() {
+            const select = document.getElementById('modelNames');
+            select.addEventListener('change', handleSelectChange);
+            modeContextMenu.style.display = 'none';
+        }
+        async function handleSelectChange(event){
+            const selectedModel = event.target.value;
+            console.log('selectedModel:',selectedModel);
+            const selectedModelDisplay = document.getElementById('currentSelctedModel');
+            selectedModelDisplay.innerHTML = '当前模型:'+ selectedModel;
+            localStorage.removeItem('currentSelectedModel');
+            localStorage.setItem('currentSelectedModel', selectedModel);
+           
+            const response = await fetch('http://localhost:11434/api/tags');
+            if (!response.ok) {
+                console.log(response);
+            throw new Error(`HTTP 错误! 状态码: ${response.status}`);
+            }
+            const data = await response.json();
+            console.log('response:',response);
+            if(!data.models || data.models.length === 0){
+                selectModel.innerHTML = '<option sytle="font-size=8px;" value="">无可用模型</option>';
+                return;
+            }
+            //const selectedUserName = event.target.options[event.target.selectedIndex].text;
+            data.models.forEach((model, index) => {
+                if(model['name'] === selectedModel){
+                    // 获取选中的用户信息
+                    const modelDescription = document.getElementById('modelDescription');
+                    modelDescription.innerHTML =  `
+                    <p sytle="font-size=8px;">版本: ${data.models[index].details?.family || '未知'}</p>
+                    <p sytle="font-size=8px;">参数: ${data.models[index].details?.parameter_size || '未知'}</p>
+                    <p sytle="font-size=8px;">格式: ${data.models[index].details?.format || '未知'}</p>
+                    <p sytle="font-size=8px;">大小: ${formatBytes(data.models[index].size)}</p>
+                    <p sytle="font-size=8px;">更新时间: ${new Date(data.models[index].modified_at).toLocaleString()}</p>
+                    `;
+                }
+            })
+            switchSelectModelText(selectedModel, modelListDataSet)
+        }
+
+        function loadKGs(){
+            const currentKGName = document.getElementById('currentSelctedKG');
+            const selectKGNames = document.getElementById('kgNames');
+            const kgDescription = document.getElementById('knowledgelibaryDescription');
+            if(!knowledgeLibList || knowledgeLibList.length === 0){
+                selectKGNames.innerHTML = '<option style="font-size=8px;" value="">无可用知识库，请先创建知识库!</option>';
+                return;
+            }
+            //console.log('currentknowledgebase:',localStorage.getItem("currentknowledgebase"))
+            if(localStorage.getItem("currentknowledgebase") !== null && localStorage.getItem("currentknowledgebase") !== ""){
+                knowledgeLibList.push(JSON.parse(localStorage.getItem("currentknowledgebase")));
+            }
+            selectKGNames.innerHTML = knowledgeLibList.map((kg, index) => {
+                if(kg.title === "创建知识库"){
+                    return `<option style="font-size=8px;" value="" 'selected'></option>`;
+                }
+                
+                return `<option style="font-size=8px;" value="${kg.title}">${kg.title}</option>`;})
+                .join('');
+            const selectKGNames_ = document.getElementById('kgNames');
+            currentKGName.innerHTML = `当前知识库:  ${selectKGNames_.value === "" ? '无' : selectKGNames_.value}`;
+            knowledgeLibList.forEach((kg, index) => {
+                if(kg.title === selectKGNames_.value && selectKGNames_.value !== "" && selectKGNames_.value !== "创建知识库"){
+                        kgDescription.innerHTML =  `
+                        <p style="font-size=8px;">${kg.description?kg.description : '未读取到'}</p>
+                        <p style="font-size=8px;">${kg.description_1?kg.description_1 : '未填写描述'}</p>
+                        `;        
+                }else{
+                    kgDescription.innerHTML =  `<p style="font-size=8px;">未选择知识库</p>`;
+                }
+            });
+            if(knowledgeLibList.length === 0){
+                    selectModel.innerHTML = '<option value="">没有模型用户</option>';
+            }
+        }
+
+        function getSelectedMKGName(){
+            const selectKG = document.getElementById('kgNames');
+            selectKG.addEventListener('change', handleSelectKGChange);
+            modeContextMenu.style.display = 'none';
+        }
+
+        function handleSelectKGChange(event) {
+            const selectedKG = event.target.value;
+            const selectedKGDisplay = document.getElementById('currentSelctedKG');
+            const kgDescription = document.getElementById('knowledgelibaryDescription');
+            
+            // 获取选中的模型信息
+            const selectedKGName = event.target.options[event.target.selectedIndex].text;
+            console.log('selectedKGName:',selectedKGName);
+            selectedKGDisplay.innerHTML = '当前知识库:'+ selectedKG;
+            
+            globalSelectedKGLib = selectedKG;
+            console.log('The globalSelectedKGLib is set to: ',globalSelectedKGLib);
+            knowledgeLibList.forEach(kg => {
+                if (kg.title === selectedKGName) {
+                    kgDescription.innerHTML =  `
+                    <p style="font-size=8px;">概要: ${kg.description? kg.description : '未读取到'}</p>
+                    <p style="font-size=8px;">描述: ${kg.description_1? kg.description_1 : '未填写'}</p>
+                `;
+                }
+            });
+        }
+
+        function ImportTemplate(){
+            showToast("成功导入100条提示词模板!")
+        }
+
+        // 发送消息到 Ollama
+        async function sendMessage() {
+            console.log("knowledgebaselist:", JSON.stringify(knowledgeLibList))
+            const userInput = document.getElementById('textInput');
+            const sendBtn = document.getElementById('send-msg-button');
+            const question = userInput.value.trim();
+            const selectedKGName = document.getElementById('kgNames').value;
+            const selectedModelName = document.getElementById('modelNames').value;
+
+            const inputContainer = document.querySelector('.input-container');
+            var textInput = document.getElementById('textInput');
+            inputContainer.style.bottom = '20px';
+            textInput.rows = 1;
+
+            if (!question) return;
+
+            // 禁用按钮并清空输入
+            sendBtn.disabled = true;
+            userInput.value = '';
+            autoExpand(userInput);
+            //消息窗口
+            const messageContainer = document.getElementById('messageContainer');
+            // 第一条消息修改标题
+            if (isFirstMessage) {
+                const newTitle = question.substring(0, 10) || "新会话"; // 取前10个字
+                document.getElementById('session-title').textContent = newTitle;
+                messageContainer.innerHTML = '';
+                isFirstMessage = false;
+            }
+                
+            //添加用户消息
+            addMessage(messageContainer, question, true);
+            
+            //添加系统消息
+            // 添加加载状态
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message-bubble bot-message loading';
+            loadingDiv.textContent = '正在思考中...';
+            messageContainer.appendChild(loadingDiv);
+            //加上溯源信息cited source list
+            const details = document.createElement('details');
+            details.style.width = '95%';
+            details.style.display = 'none';
+            messageContainer.appendChild(details);
+            
+            
+            // 创建用于流式显示的容器
+            const responseDiv = document.createElement('div');
+            responseDiv.className = 'message-bubble bot-message';
+            responseDiv.style.whiteSpace = 'pre-wrap';
+            responseDiv.style.fontFamily = 'monospace';
+            responseDiv.innerHTML = '<i class="fas fa-sync fa-spin"></i>';
+            const actionBtnWrapper = createMsgMenu(false, responseDiv);
+            messageContainer.appendChild(actionBtnWrapper);
+            const feedbackIcons = createFeddbackIconsForMsgOpt();
+            messageContainer.appendChild(feedbackIcons);
+            
+            try {
+                if(selectedKGName){
+                    console.log('The selectedKGName is]: ',selectedKGName);
+                    console.log("knowledgebaselist:",knowledgeLibList)
+                    console.log("knowledgebaselist:", localStorage.getItem('currentknowledgebase'))
+                    const currentKBInfo = checkConfig(localStorage.getItem('currentknowledgebase'))
+                    if(judgeConfig(localStorage.getItem('currentknowledgebase'))){//database
+                        try {
+                                console.log("数据库")
+                                const post_data_obj = JSON.parse(currentKBInfo.value);
+                                post_data_obj.llm_model_name = selectedModelName;
+                                post_data_obj.user_query = question;
+                                
+                                //console.log('post_data_obj:',post_data_obj)
+                                const response = await fetch('http://127.0.0.1:5000/api/vrv-rag/database/sqlchat', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify(post_data_obj)
+                                })
+
+                                if (!response.ok) {
+                                    throw new Error(`HTTP错误! 状态码: ${response.status}`);
+                                }
+                        
+                                const result = await response.json();
+                                //console.log('NL2SQL result:', result);
+                                loadingDiv.remove();
+                                responseDiv.innerHTML = '';
+                                responseDiv.innerHTML = result.response;
+                                responseDiv.scrollTop = responseDiv.scrollHeight;
+                             }catch (error) {
+                                console.error('Error:', error);
+                                responseDiv.innerHTML = `错误: ${error.message}`;
+                            }
+                    }else{//docs
+                        const currentMode = getModelCategory(selectedModelName, modelListDataSet)
+                        if(currentMode === 'vlm'){
+                            try{
+                                console.log("文档多模态")
+                                const response = await fetch('http://localhost:5000/api/vrv-rag/multimodal/chat', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({
+                                        question: question,
+                                        knowledge_base_name: selectedKGName,
+                                        mm_model_name: selectedModelName,
+                                        mm_model_temprature: 0.2,
+                                    })
+                                })
+                            
+                                if (!response.ok) {
+                                    throw new Error(`HTTP错误! 状态码: ${response.status}`);
+                                }
+                                
+                                const result = await response.json();
+                                console.log('response.result:',result)
+                                loadingDiv.remove();
+                                responseDiv.innerHTML = '';
+                                if(result.code == 0){
+                                    const initialData = JSON.parse(result.initial_data)
+                                    createCite(details, initialData.cited_documents, selectedKGName);
+                                    responseDiv.innerHTML = result.response;
+                                }else{
+                                    responseDiv.innerHTML = result.message;
+                                }
+                                responseDiv.scrollTop = responseDiv.scrollHeight;
+                            }catch(error) {
+                                console.error('Error:', error);
+                                responseDiv.innerHTML = `错误: ${error.message}`;
+                            }
+                        }else{
+                            console.log("文档纯文本")
+                            fetch('http://localhost:5000/api/vrv-rag/chat', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    question: question,
+                                    knowledge_base_name: selectedKGName,
+                                    llm_model_name: selectedModelName,
+                                    similarity_top_k: 5,
+                                })
+                            })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error(`HTTP错误! 状态码: ${response.status}`);
+                                }
+                                data_count = 0;
+                                console.log('Init Data count:', data_count);
+                                const reader = response.body.getReader();
+                                const decoder = new TextDecoder();
+                                let buffer = '';
+                                console.log('response.status:',response.status)
+                                // 移除加载状态
+                                loadingDiv.remove();
+                                //responseDiv.innerHTML = ''
+
+                                function read() {
+                                    return reader.read().then(({ done, value }) => {
+                                        if (done) {
+                                            //console.log('流式传输结束');
+                                            return;
+                                        }
+                                        
+                                        buffer += decoder.decode(value, { stream: true });
+                                        //console.log('收到原始数据:', buffer);  // 调试输出
+                                        
+                                        // 处理消息分割
+                                        const messages = buffer.split('\n\n');
+                                        buffer = messages.pop() || '';
+                                        //console.log('待处理消息:', messages);
+
+                                        messages.forEach(message => {
+                                            //const [type, data] = message.split(':', 2);
+                                            const colonIndex = message.indexOf(':');
+                                            if (colonIndex === -1) {
+                                                console.error('消息缺少冒号分隔符:', message);
+                                                return;
+                                            }
+                                            const type = message.slice(0, colonIndex);
+                                            const data = message.slice(colonIndex + 1);
+                                            //console.log('解析消息类型:', type);
+                                            //console.log('原始数据内容:', data); // 新增调试输出
+                                        
+                                            
+                                            switch(type) {
+                                                case 'INITIAL':
+                                                    if (!validateJSON(data)) return;
+                                                    const initialData = JSON.parse(data);
+                                                    console.log('Initial data-cited_documents:', initialData.cited_documents);
+                                                    createCite(details, initialData.cited_documents, selectedKGName);
+                                                    break;
+                                                    
+                                                case 'DATA':
+                                                    if (!validateJSON(data)) return;
+                                                    const chunkData = JSON.parse(data);
+                                                    
+                                                    if(data_count === 0){
+                                                        responseDiv.innerHTML = '';
+                                                        data_count ++;
+                                                        
+                                                        responseDiv.innerHTML += chunkData.chunk;
+                                                        responseDiv.scrollTop = responseDiv.scrollHeight;
+                                                        //responseDiv.scrollIntoView({ behavior: 'smooth' });
+                                                    }else{
+                                                        responseDiv.innerHTML += chunkData.chunk;
+                                                        responseDiv.scrollTop = responseDiv.scrollHeight;
+                                                        //responseDiv.scrollIntoView({ behavior: 'smooth' });
+                                                    }
+                                                    break;
+                                                    
+                                                case 'END':
+                                                    //responseDiv.innerHTML += '<hr>';
+                                                    responseDiv.innerHTML += '';
+                                                    data_count = 0;
+                                                    console.log('Final reset Data count:', data_count);
+                                                    break;
+                                                default:
+                                                    console.error('未知消息类型:', type);
+                                            }
+                                        });
+                                        return read();
+                                    });
+                                }
+                                return read();
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                responseDiv.innerHTML = `错误: ${error.message}`;
+                            });
+                        }
+                    }
+                        
+                }else{
+                    console.log("直接连接大模型")
+                    console.log('The selectedKGName is]]: ', selectedKGName);
+                    const response = await fetch('http://localhost:11434/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: selectedModelName,  // 修改为你的模型名称
+                        prompt: question,
+                        stream: true,
+                    }),
+                    });
+
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    let fullResponse = '';
+
+                    // 移除加载状态
+                    loadingDiv.remove();
+                    responseDiv.innerHTML = ''
+                    
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+
+                        const chunk = decoder.decode(value);
+                        try {
+                            const data = JSON.parse(chunk);
+                            fullResponse += data.response;
+                            responseDiv.textContent = fullResponse; 
+                        
+                            responseDiv.scrollIntoView({ behavior: 'smooth' });
+                            
+                        } catch (e) {
+                            console.error('解析错误:', e);
+                        }
+                    }
+                }
+                
+                if (isAtBottom) {
+                    messageContainer.scrollTop = messageContainer.scrollHeight;
+                }
+
+                document.addEventListener('click', (e) => {
+                    const wrapper = document.querySelector('.action-buttons-wrapper');
+                    const contentBox = document.querySelector('.message-bubble.user-message');
+                    //console.log('contentBox:', contentBox);
+                    const actionButtons = document.querySelector('.action-buttons');
+
+                    if (!wrapper.contains(e.target)) {
+                        contentBox.blur();
+                        actionButtons.style.visibility = 'hidden';
+                        actionButtons.style.opacity = 0;
+                    }
+                });
+                // 按钮点击事件
+                document.querySelectorAll('.action-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const action = btn.querySelector('i').classList.contains('fa-edit') 
+                                    ? '编辑' : '复制';
+                        showToast(` ${action} 成功`);
+                    });
+                });
+            } catch (error) {
+                console.error('请求失败:', error);
+                loadingDiv.textContent = '请求出错，请检查 Ollama 服务是否运行';
+            } finally {
+                sendBtn.disabled = false;
+                userInput.focus();
+                //console.log('messageContainer.innerHTML:', messageContainer.innerHTML);
+            }
+        }
+        function validateJSON(jsonStr) {
+            try {
+                JSON.parse(jsonStr);
+                return true;
+            } catch (e) {
+                console.error('无效JSON:', {
+                    error: e,
+                    invalidJSON: jsonStr.slice(0, 50) + (jsonStr.length > 50 ? "..." : "")
+                });
+                return false;
+            }
+        }
+        function checkConfig(jsonString) {
+            try {
+                // 将JSON字符串解析为对象
+                const data = JSON.parse(jsonString);
+                
+                // 获取config对象
+                const config = data.config;
+                
+                // 判断docs和database哪个不为空
+                if (Object.keys(config.docs).length > 0) {
+                    return { key: 'docs', value: config.docs };
+                } else if (Object.keys(config.database).length > 0) {
+                    return { key: 'database', value: config.database };
+                } else {
+                    return { key: null, value: null };
+                }
+            } catch (error) {
+                console.error('解析JSON字符串时出错:', error);
+                return { key: null, value: null };
+            }
+        }
+        function judgeConfig(jsonString) {
+            const result = checkConfig(jsonString);
+            if (result.key === 'docs') {
+                console.log('返回的key是docs');
+                return false;
+            } else if (result.key === 'database') {
+                console.log('返回的key是database');
+                return true;
+            } else {
+                console.log('返回的key为空');
+                return false;
+            }
+        }
+        function updateJsonValue(jsonString, key, newValue) {
+            const obj = JSON.parse(jsonString);
+            if (obj.hasOwnProperty(key)) {
+                obj[key] = newValue;
+            } else {
+                console.warn(`Key "${key}" not found in the JSON object.`);
+            }
+
+            return JSON.stringify(obj);
+        }
+
+        // 新增聊天功能逻辑
+        let isAtBottom = true;
+        const messageContainer = document.getElementById('messageContainer');
+        
+        const textInput = document.getElementById('textInput');
+        let mewSessionMsgContainer = document.getElementById('messageContainer');
+        let messageBubblleItems = document.querySelectorAll('.message-bubble ul li');
+        let scrollButton = document.getElementById('scrollButton');
+
+         /**
+         * 往问答窗口添加消息
+         * 当前字体大小(CSS中)设置为16px
+         * .message-container {
+         *    font-size: 16px;
+         * }
+         * */
+         function addMessage(msgContainer, text, isUser) {
+            const bubble = document.createElement('div');
+            bubble.className = `message-bubble ${isUser ? 'user-message' : 'bot-message'}`;
+            initContextMenuInMsgContainerMobileOnly(bubble)
+
+            bubble.textContent = text;
+            if (!isUser){
+                //add the source list the response came from
+                const citedSource = createCiteElement(citedSourceItems, citedSumTitle);
+                msgContainer.appendChild(citedSource);
+                console.log('Add cited source successfully:', citedSource);
+            }
+            
+            bubble.textContent = text;
+
+            if (!isUser){
+                text += feedbackIconsForMsgOpt;
+                bubble.innerHTML = text;
+            }
+            const actionBtnWrapper = createMsgMenu(isUser, bubble);
+            msgContainer.appendChild(actionBtnWrapper);
+        }
+
+        
+        //create cited source html script
+        function createCite(details, citedSourceItems, knowledgeBaseName) {
+            const count = citedSourceItems.length
+            if (count === 0) {
+                details.textContent = "没有找到相关文档";
+            }else{
+                let citedSumTitle = "从知识库:" + knowledgeBaseName + "中找到" + count + "个相关资源(文档或数据库)"
+                //const details = document.createElement('details');
+                //details.style.width = '95%';
+                const summary = document.createElement('summary');
+                const iconSummary = document.createElement('i');
+                iconSummary.className = 'fa-solid fa-magnifying-glass';
+                iconSummary.style.color = '#0066CC';
+                summary.textContent = citedSumTitle;
+                summary.style.color = '#0066CC';
+                const iconSummaryRight = document.createElement('i');
+                iconSummaryRight.className = 'fas fa-angle-right';
+                iconSummaryRight.style.color = '#0066CC';
+                iconSummaryRight.style.marginLeft = '5px';
+                //创建一个空格文本节点（可选，用于分隔图标和文本）
+                const space = document.createTextNode(' ');
+                summary.prepend(iconSummary, space);
+                summary.appendChild(iconSummaryRight);
+                const ul = document.createElement('ul');
+                citedSourceItems.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item.file_name; 
+                    li.style.color = "#7F7F7F";
+                    //动态创建 li 并绑定事件
+                    li.addEventListener('click', function() {
+                        showFileModal(knowledgeBaseName, item.file_name);
+                        iconSummaryRight.classList.replace('fa-angle-right', 'fa-angle-down');
+                    });
+                    ul.appendChild(li); 
+                });
+                details.appendChild(summary); 
+                details.appendChild(ul); 
+                //return details;
+                details.style.display = 'block';
+            }
+        }
+
+        function createCiteElement(citedSourceItems, citedSumTitle) {
+            const details = document.createElement('details');
+            details.style.width = '95%';
+            const summary = document.createElement('summary');
+            const iconSummary = document.createElement('i');
+            iconSummary.className = 'fa-solid fa-magnifying-glass';
+            iconSummary.style.color = '#0066CC';
+            summary.textContent = citedSumTitle;
+            summary.style.color = '#0066CC';
+            const iconSummaryRight = document.createElement('i');
+            iconSummaryRight.className = 'fas fa-angle-right';
+            iconSummaryRight.style.color = '#0066CC';
+            iconSummaryRight.style.marginLeft = '5px';
+            //创建一个空格文本节点（可选，用于分隔图标和文本）
+            const space = document.createTextNode(' ');
+            summary.prepend(iconSummary, space);
+            summary.appendChild(iconSummaryRight);
+            const ul = document.createElement('ul');
+            citedSourceItems.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item; 
+                li.style.color = "#7F7F7F";
+                //动态创建 li 并绑定事件
+                li.addEventListener('click', function() {
+                    openPdfModal('https://arxiv.org/pdf/2410.12837');
+                    iconSummaryRight.classList.replace('fa-angle-right', 'fa-angle-down');
+                });
+                ul.appendChild(li); 
+            });
+            details.appendChild(summary); 
+            details.appendChild(ul); 
+            return details;
+        }
+
+        //mouse move on to show the context menu for copy/edit and more
+        function createMsgMenu(isUser, bubble) {
+            const actionBtnWrapper = document.createElement('div');
+            actionBtnWrapper.className = "action-buttons-wrapper";
+            const actionBtns = document.createElement('div');
+            actionBtns.className = "action-buttons";
+            const actionBtn1 = document.createElement('button');
+            actionBtn1.className = "action-btn";
+            actionBtn1.setAttribute("id", "action-btn-copy");
+            actionBtn1.innerHTML = '<i class="fas fa-copy"></i>';
+            actionBtn1.addEventListener('click', () => {
+                const textToCopy = bubble.textContent;
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    showToast('复制成功！');
+                }).catch((error) => {
+                    showToast('复制失败：' + String(error));
+                });
+            });
+            const actionBtn2 = document.createElement('button');
+            actionBtn2.className = "action-btn";
+            actionBtn2.setAttribute("id", "action-btn-edit");
+            actionBtn2.innerHTML = '<i class="fas fa-edit"></i>';
+            actionBtn2.addEventListener('click', () => {
+                const textToEdit = bubble.textContent;
+                showToast('编辑成功！');
+            });
+            if (!isUser){
+                actionBtnWrapper.style.marginRight = 'auto';
+                
+                actionBtnWrapper.appendChild(bubble);
+                actionBtns.appendChild(actionBtn1);
+                actionBtns.appendChild(actionBtn2);
+                actionBtnWrapper.appendChild(actionBtns);
+            }else {
+                actionBtnWrapper.style.marginLeft = 'auto';
+                
+                actionBtns.appendChild(actionBtn1);
+                actionBtns.appendChild(actionBtn2);
+                actionBtnWrapper.appendChild(actionBtns);
+                actionBtnWrapper.appendChild(bubble);
+            }
+            
+            return actionBtnWrapper;
+        }
+
+        //at the following of the response features' btn
+        const feedbackIconsForMsgOpt = `<br>
+                    <div class='bot-message-bottom-container'>
+                        <i class='fas fa-play-circle' style='marginLeft:auto;marginRight:0;color:#7D7D7D;;'></i>&nbsp;&nbsp;
+                        <div class='bot-message-bottom-right-icons'>
+                            <i class='fas fa-thumbs-up' style='marginLeft:0;marginRight:auto;color:#7D7D7D;'></i>&nbsp;&nbsp;
+                            <i class='fas fa-thumbs-down' style='marginLeft:0;marginRight:auto;color:#7D7D7D;'></i>
+                            <i class='fas fa-sync' style='marginLeft:0;marginRight:auto;color:#7D7D7D;'></i>&nbsp;&nbsp;
+                            <i class='fas fa-copy' style='marginLeft:0;marginRight:auto;color:#7D7D7D;'></i>&nbsp;&nbsp;                                
+                        </div>
+                    </div>`;
+        
+        function createFeddbackIconsForMsgOpt() {
+            const feedbackIcons = document.createElement('div');
+            feedbackIcons.className = "bot-message-bottom-container";
+            const lefIcons = document.createElement('i');
+            lefIcons.className = "fas fa-play-circle";
+            lefIcons.style.marginLeft = "auto";
+            lefIcons.style.marginRight = "0";
+            lefIcons.style.color = "#7D7D7D";
+            const rightIcons = document.createElement('div');
+            rightIcons.className = "bot-message-bottom-right-icons";
+            const thumbUp = document.createElement('i');
+            thumbUp.className = "fas fa-thumbs-up";
+            thumbUp.style.marginLeft = "0";
+            thumbUp.style.marginRight = "auto";
+            thumbUp.style.color = "#7D7D7D";
+            const thumbDown = document.createElement('i');
+            thumbDown.className = "fas fa-thumbs-down";
+            thumbDown.style.marginLeft = "0";
+            thumbDown.style.marginRight = "auto";
+            thumbDown.style.color = "#7D7D7D";
+            const sync = document.createElement('i');
+            sync.className = "fas fa-sync";
+            sync.style.marginLeft = "0";
+            sync.style.marginRight = "auto";
+            sync.style.color = "#7D7D7D";
+            const copy = document.createElement('i');
+            copy.className = "fas fa-copy";
+            copy.style.marginLeft = "0";
+            copy.style.marginRight = "auto";
+            copy.style.color = "#7D7D7D";
+            rightIcons.appendChild(thumbUp);
+            rightIcons.appendChild(thumbDown);
+            rightIcons.appendChild(sync);
+            rightIcons.appendChild(copy);
+            //feedbackIcons.appendChild(lefIcons);
+            feedbackIcons.appendChild(rightIcons);
+            return feedbackIcons;
+        }
+
+        //底部功能区控制按钮
+        const bottomMenuContainer = document.querySelector('.bottom-menu-container');
+        const bottomMenuCtrlBtn = document.getElementById("bottom-menu-button");
+        const bottomMenuCtlBtnIcon = document.getElementById("bottom-menu-button-icon");
+        bottomMenuCtrlBtn.addEventListener("click", () => {
+            const container = document.querySelector('.input-container');
+            let currentBottom = parseInt(container.style.bottom || '0');
+            if(bottomMenuCtlBtnIcon.className === 'fas fa-plus'){
+                bottomMenuCtlBtnIcon.classList.remove("fa-plus");
+                bottomMenuCtlBtnIcon.classList.add("fa-times");
+                container.style.bottom = (currentBottom + 100) + 'px';
+            }else{
+                bottomMenuCtlBtnIcon.classList.remove("fa-times");
+                bottomMenuCtlBtnIcon.classList.add("fa-plus");
+                container.style.bottom = (currentBottom - 100) + 'px';
+            }
+            if (bottomMenuContainer.style.display === 'none' 
+                || bottomMenuContainer.style.display === '') {
+                bottomMenuContainer.style.display = 'flex';
+            } else {
+                bottomMenuContainer.style.display = 'none';
+            }
+        });
+
+        const dropdown = document.querySelector('.dropdown');
+        const dropdownTitle = dropdown.querySelector('.dropdown-title');
+        const dropdownDescription = dropdown.querySelector('.dropdown-description');
+
+        // 查询控件功能
+        const queryInput = document.querySelector('.query-input');
+        const icons = document.querySelectorAll('[id^="center-icon"]');
+        const rows = document.querySelectorAll('.pagination-table td');
+        const contextMenuCenter = document.querySelector('.center-context-menu');
+
+        // 查询
+        queryInput.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+            rows.forEach(row => {
+                const txtValue = row.textContent || row.innerText;
+                row.style.display = txtValue.toLowerCase().includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        // 双击行
+        rows.forEach(row => {
+            row.addEventListener('dblclick', () => {
+                //showToast(`双击了：${row.textContent}`);
+                const textInput = document.getElementById('textInput');
+                const start = textInput.selectionStart;
+                const end = textInput.selectionEnd;
+                const currentValue = textInput.value;
+                const newValue = currentValue.substring(0, start) + row.textContent + currentValue.substring(end);
+                textInput.value = newValue;
+                // 设置光标到插入内容后的位置
+                const newPos = start + row.textContent.length;
+                textInput.selectionStart = newPos;
+                textInput.selectionEnd = newPos;
+                // 保持焦点
+                textInput.focus();
+                
+                //document.getElementById("addBtn").click();
+                const modeContextMenu1 = document.getElementById('modeSelectionContextMenu1');
+                const modeContextMenu = document.getElementById('modeSelectionContextMenu');
+                modeContextMenu.style.display = 'none';
+                modeContextMenu1.style.display = 'none';
+                //modeContextMenu.sytle.width = mainContent.innerWidth;
+            });
+        });
+
+        // 点击图标显示上下文菜单
+        icons.forEach(icon => {
+            icon.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                const { pageX, pageY } = e;
+                contextMenuCenter.style.display = 'block';
+                contextMenuCenter.style.left = `${pageX}px`;
+                contextMenuCenter.style.top = `${pageY}px`;
+            });
+        });
+
+        // 点击上下文菜单选项
+        contextMenuCenter.addEventListener('click', (e) => {
+            showToast(`点击了 ${e.target.textContent}`);
+            contextMenuCenter.style.display = 'none';
+        });
+
+        // 点击页面其他地方隐藏上下文菜单
+        document.addEventListener('click', () => {
+            contextMenuCenter.style.display = 'none';
+        });
+         // 滚动控制逻辑
+         messageContainer.addEventListener('scroll', () => {
+            const threshold = 50;
+            isAtBottom = messageContainer.scrollHeight - messageContainer.scrollTop - messageContainer.clientHeight < threshold;
+            scrollButton.style.display = 'block';
+        });
+
+        scrollButton.addEventListener('click', () => {
+            if (isAtBottom) {
+                messageContainer.scrollTop = 0;
+                scrollButton.innerHTML = '<i class="fas fa-chevron-down" style="color:#0066CC;background-color: transparent;"></i>';
+            } else {
+                messageContainer.scrollTop = messageContainer.scrollHeight;
+                scrollButton.innerHTML = '<i class="fas fa-chevron-up" style="color:#0066CC;background-color: transparent;"></i>';
+            }
+            isAtBottom = !isAtBottom;
+        });
+        
+        // 按回车键发送消息（不换行）
+        textInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault(); // 阻止默认换行行为
+                //document.getElementById('send-msg-button').click();
+                sendMessage(); // 调用发送消息函数
+            }
+        });
+
+        function handleScroll() {
+
+        }
+        /**移动端长按用户和机器人会话div出上下文菜单**/
+        function initContextMenuInMsgContainerMobileOnly(msgDiv){
+            const msgContainerContextMenu = document.querySelector('.message-container-context-menu');
+            //const contentBox = document.querySelector('.content-box');
+            let longPressTimer;
+
+            // 禁止默认长按菜单
+            msgDiv.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+            });
+
+            // 触摸开始
+            msgDiv.addEventListener('touchstart', (e) => {
+                longPressTimer = setTimeout(() => {
+                    showContextMenu(e.touches[0]);
+                    e.preventDefault();
+                }, 700); // 700毫秒触发长按
+            });
+
+            // 触摸结束
+            msgDiv.addEventListener('touchend', () => {
+                clearTimeout(longPressTimer);
+            });
+
+            // 显示上下文菜单
+            function showContextMenu(touch) {
+                msgContainerContextMenu.style.display = 'block';
+                
+                // 定位菜单
+                const menuWidth = msgContainerContextMenu.offsetWidth;
+                const menuHeight = msgContainerContextMenu.offsetHeight;
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+
+                let posX = touch.clientX;
+                let posY = touch.clientY;
+
+                // 边界检测
+                if (posX + menuWidth > viewportWidth) {
+                    posX = viewportWidth - menuWidth - 10;
+                }
+                if (posY + menuHeight > viewportHeight) {
+                    posY = viewportHeight - menuHeight - 10;
+                }
+
+                msgContainerContextMenu.style.left = `${posX}px`;
+                msgContainerContextMenu.style.top = `${posY}px`;
+            }
+
+            // 隐藏菜单
+            document.addEventListener('touchstart', (e) => {
+                if (!msgContainerContextMenu.contains(e.target)) {
+                    msgContainerContextMenu.style.display = 'none';
+                }
+            });
+
+            // 菜单点击处理
+            document.querySelectorAll('.message-container-context-menu-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const action = item.dataset.action;
+                    showToast(`执行 ${action === 'edit' ? '编辑' : '复制'} 操作`);
+                    msgContainerContextMenu.style.display = 'none';
+                });
+            });
+        }
+
+        //点击窗口其他地方时隐藏菜单
+        window.addEventListener('click', (event) => {
+            if (!modeSectionBtn.contains(event.target) && !modeContextMenu.contains(event.target)) {
+                modeContextMenu.style.display = 'none';
+                if(modeSectionIcon.classList.contains('fa-angle-up')){
+                    modeSectionIcon.classList.remove('fa-angle-up');
+                    modeSectionIcon.classList.add('fa-angle-down');
+                }
+            }
+        });
+        /**输入框左侧选择模式按钮操作**/
+        const modeSectionBtn = document.getElementById('mode-selection-button');
+        const modeSectionIcon = document.getElementById('mode-selection-icon');
+        const modeContextMenu = document.getElementById('modeSelectionContextMenu');
+        const modeContextMenu1 = document.getElementById('modeSelectionContextMenu1');
+
+        //const modeContextMenu_new = document.getElementById('topMainMenu');
+        // 添加事件监听器
+        modeSectionBtn.addEventListener('click', function (event) {
+            //event.preventDefault(); // 防止默认行为
+
+            if(modeContextMenu.style.display = 'none'){
+                //显示上下文菜单并定位到鼠标位置
+                const x = event.clientX;
+                const y = event.clientY;
+                const modeSectionBtnRect = modeSectionBtn.getBoundingClientRect();
+                modeContextMenu.style.display = 'block';
+                modeContextMenu.style.left = modeSectionBtnRect.left+'px';
+                modeContextMenu.style.top = `${modeSectionBtnRect.top - modeContextMenu.offsetHeight}px`;
+                modeContextMenu.style.transform = 'translateY(-10px)';
+                modeContextMenu.style.width = textInput.width +'px';
+                modeContextMenu.style.bottom = textInput.outerHeight+'px';
+                
+
+                if(modeSectionIcon.classList.contains('fa-angle-down')){
+                        modeSectionIcon.classList.remove('fa-angle-down');
+                        modeSectionIcon.classList.add('fa-angle-up');
+                }
+
+                modeContextMenu1.style.display = 'grid';
+            }else{
+                modeContextMenu.style.display = 'none';
+            }   
+        });
+
+        // 标题编辑逻辑
+        const titleElement = document.getElementById('session-title');
+        const titleInput = document.getElementById('title-input');
+
+        titleElement.addEventListener('click', () => {
+            titleInput.value = titleElement.textContent;
+            titleElement.style.display = 'none';
+            titleInput.style.display = 'block';
+            titleInput.focus();
+        });
+
+        titleInput.addEventListener('blur', saveTitle);
+        titleInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') saveTitle();
+        });
+
+        function saveTitle() {
+            const newTitle = titleInput.value.trim() || "新会话";
+            titleElement.textContent = newTitle;
+            titleInput.style.display = 'none';
+            titleElement.style.display = 'block';
+            showToast('会话标题修改成功!')
+        }
+
+        //侧面srollbar滑动条控制程序
+        const scrollbar = document.getElementById('scrollbar');
+        const thumb = document.getElementById('thumb');
+
+        let isDragging = false;
+        let dragStartY = 0;
+        let thumbTop = 0;
+
+        // 更新滑块位置
+        function updateThumbPosition() {
+            const messageContainer = document.getElementById('messageContainer');
+            const scrollTop = messageContainer.scrollTop;
+            const contentHeight = messageContainer.scrollHeight;
+            const viewportHeight = messageContainer.clientHeight;
+            const maxScrollTop = contentHeight - viewportHeight;
+            const thumbMaxTop = scrollbar.offsetHeight - thumb.offsetHeight;
+            const thumbTop = (scrollTop / maxScrollTop) * thumbMaxTop;
+            thumb.style.top = Math.min(thumbMaxTop, Math.max(0, thumbTop)) + 'px';
+        }
+
+        // 根据滑块位置更新内容滚动
+        function updateContentScroll() {
+            const thumbTop = parseInt(thumb.style.top);
+            const thumbMaxTop = scrollbar.offsetHeight - thumb.offsetHeight;
+            const maxScrollTop = messageContainer.scrollHeight - messageContainer.clientHeight;
+            const scrollTop = (thumbTop / thumbMaxTop) * maxScrollTop;
+            messageContainer.scrollTop = scrollTop;
+        }
+
+        // 初始化滑块位置
+        updateThumbPosition();
+
+        // 监听窗口大小变化
+        window.addEventListener('resize', updateThumbPosition);
+
+        // 监听内容滚动事件
+        messageContainer.addEventListener('scroll', updateThumbPosition);
+
+        // 滑块拖动事件
+        thumb.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            dragStartY = e.clientY - thumb.offsetTop;
+            showScrollbar(); // 开始拖动时显示滚动条
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const newY = e.clientY - dragStartY;
+            const thumbMaxTop = scrollbar.offsetHeight - thumb.offsetHeight;
+            thumbTop = Math.max(0, Math.min(newY, thumbMaxTop));
+            thumb.style.top = thumbTop + 'px';
+            updateContentScroll();
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        // 鼠标滚轮事件
+        messageContainer.addEventListener('wheel', (e) => {
+            e.preventDefault(); // 阻止默认滚动行为
+            const scrollAmount = e.deltaY > 0 ? 40 : -40; // 每次滚动的距离
+            messageContainer.scrollTop += scrollAmount; // 更新内容的滚动位置
+            updateThumbPosition(); // 更新滑块位置
+            showScrollbar(); // 滚动时显示滚动条
+        });
+
+        // 鼠标移入/移出滚动条区域
+        scrollbar.addEventListener('mouseenter', showScrollbar);
+        scrollbar.addEventListener('mouseleave', hideScrollbar);
+
+        // 手指触碰滚动条区域（移动端）
+        scrollbar.addEventListener('touchstart', showScrollbar);
+        scrollbar.addEventListener('touchend', hideScrollbar);
+
+        // 显示滚动条
+        function showScrollbar() {
+            scrollbar.classList.add('show');
+        }
+
+        // 隐藏滚动条
+        function hideScrollbar() {
+            scrollbar.classList.remove('show');
+        }
+
+        // 打开弹窗
+        function openPdfModal(pdfUrl) {
+            const modal = document.getElementById('pdfModal')
+            const embed = document.getElementById('pdfEmbed')
+            embed.src = pdfUrl
+            modal.style.display = 'flex'
+            document.body.style.overflow = 'hidden' // 禁止背景滚动
+        }
+        // 关闭弹窗
+        function closeModal() {
+            document.getElementById('pdfModal').style.display = 'none'
+            document.body.style.overflow = 'auto'
+        }
+
+        // 点击外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('pdfModal')
+            if (event.target == modal) {
+                closeModal()
+            }
+        }
+
+        //修改后的弹窗显示函数
+        function showFileModal(knowledgeBaseName, filename) {
+            fetchFile(knowledgeBaseName, filename).then(file => {
+                const preview = document.getElementById('preview');
+                preview.innerHTML = '';
+                const ext = filename.split('.').pop().toLowerCase();
+                
+                if (ext === 'pdf') {
+                    handlePDFFile(file);
+                } else if (ext === 'txt') {
+                    handleTextFile(file);
+                } else if (
+                    file.name.endsWith('.docx') || 
+                    file.name.endsWith('.doc')
+                ) {
+                    handleWordFile(file);
+                } else if (['png', 'jpg', 'jpeg', 'gif', 'bmp'].includes(ext)) {
+                    handleImageFile(file);
+                } else {
+                    preview.innerHTML = '不支持的文件格式';
+                }
+                
+                document.getElementById('modalMask').style.display = 'block';
+            }).catch(error => {
+                alert('文件加载失败: ' + error.message);
+            });
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            document.getElementById('modalMask').style.display = 'none';
+        }
+
+        // 点击遮罩层关闭
+        document.getElementById('modalMask').addEventListener('click', e => {
+            if (e.target === document.getElementById('modalMask')) {
+                closeModal();
+            }
+        });
+
+        // 修改后的文件获取函数
+        async function fetchFile(knowledgeBaseName, filename) {
+            try {
+                const response = await fetch(`/files/${knowledgeBaseName}/${filename}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const blob = await response.blob();
+                return new File([blob], filename, { type: blob.type });
+            } catch (error) {
+                console.error('文件获取失败:', error);
+                throw error;
+            }
+        }
+
+
+        function handleTextFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                const pre = document.createElement('pre');
+                pre.style = 'overflow-wrap: break-word;word-wrap: break-word;white-space: pre-wrap;'; // 设置样式，使文本换行
+                pre.textContent = content;
+                document.getElementById('preview').appendChild(pre);
+                const pdfPageCtrlDiv = document.getElementById('paginationControls');
+                if(pdfPageCtrlDiv){
+                    document.getElementById('paginationControls').style.display='none'
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function handleImageFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = 'preview-img';
+                document.getElementById('preview').appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 新增 Word 处理函数
+        function handleWordFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const arrayBuffer = e.target.result;
+                
+                mammoth.convertToHtml({ arrayBuffer: arrayBuffer })
+                    .then(result => {
+                        const div = document.createElement('div');
+                        div.className = 'word-content';
+                        div.innerHTML = result.value;
+                        preview.appendChild(div);
+                        
+                        const pdfPageCtrlDiv = document.getElementById('paginationControls');
+                        if(pdfPageCtrlDiv){
+                            document.getElementById('paginationControls').style.display='none'
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Word 转换错误:', error);
+                        preview.innerHTML = '无法解析 Word 文档';
+                    });
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // 在脚本开头添加全局状态变量
+    let currentPdfDoc = null;
+    let currentPageNum = 1;
+    let totalPages = 0;
+
+    // 修改后的 PDF 处理函数
+    async function handlePDFFile(file) {
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            const buffer = e.target.result;
+            const arrayBuffer = new Uint8Array(buffer).buffer;
+
+            try {
+                // 显示加载提示
+                showLoading(true);
+                
+                // 加载 PDF 文档
+                currentPdfDoc = await pdfjsLib.getDocument(arrayBuffer).promise;
+                totalPages = currentPdfDoc.numPages;
+                
+                // 初始化显示第一页
+                await renderPage(currentPageNum);
+                createPaginationControls();
+            } catch (error) {
+                console.error('PDF 加载失败:', error);
+                preview.innerHTML = 'PDF 文件解析失败';
+            } finally {
+                showLoading(false);
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    // 新增：页面渲染函数
+    async function renderPage(pageNum) {
+        // 记录当前滚动位置
+        const prevScroll = window.scrollY;
+
+        if (!currentPdfDoc || pageNum < 1 || pageNum > totalPages) return;
+
+        const preview = document.getElementById('preview');
+        preview.innerHTML = ''; // 清空旧内容
+
+        try {
+            const page = await currentPdfDoc.getPage(pageNum);
+            const viewport = page.getViewport({ scale: 1.5 });
+            
+            const canvas = document.createElement('canvas');
+            canvas.id = 'pdf-canvas';
+            const context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            await page.render({
+                canvasContext: context,
+                viewport: viewport
+            }).promise;
+
+            preview.appendChild(canvas);
+            updatePageIndicator();
+
+            // 保持滚动位置
+            requestAnimationFrame(() => {
+                window.scrollTo(0, prevScroll);
+            });
+        } catch (error) {
+            console.error('页面渲染失败:', error);
+        }
+    }
+
+    // 新增：创建分页控件
+    function createPaginationControls() {
+        const pdfPageCtrlDiv = document.getElementById('paginationControls');
+        if(pdfPageCtrlDiv){
+            document.getElementById('paginationControls').style.display='block';
+        }else{
+            const controls = document.createElement('div');
+            controls.id = 'paginationControls';
+            controls.style.margin = '10px 0';
+            controls.innerHTML = `
+                <button id="prevPage" class="file-view-button">上一页</button>
+                <span id="pageIndicator" class="file-view-button">第 1 页 / 共 ${totalPages} 页</span>
+                <button id="nextPage" class="file-view-button">下一页</button>
+            `;
+            controls.innerHTML += `
+                <input type="number" id="pageJump" min="1" max="${totalPages}" style="width: 60px;">
+                <button id="goPage" class="file-view-button">跳转</button>
+            `;
+            const preview = document.getElementById('preview');
+            preview.insertAdjacentElement('beforebegin', controls);
+        }
+
+        // 绑定事件
+        document.getElementById('prevPage').addEventListener('click', async () => {
+            if (currentPageNum > 1) {
+                currentPageNum--;
+                await renderPage(currentPageNum);
+            }
+        });
+
+        document.getElementById('goPage').addEventListener('click', async () => {
+            const page = parseInt(document.getElementById('pageJump').value);
+            if (page >= 1 && page <= totalPages) {
+                currentPageNum = page;
+                await renderPage(currentPageNum);
+            }
+        });
+
+        document.getElementById('nextPage').addEventListener('click', async () => {
+            if (currentPageNum < totalPages) {
+                currentPageNum++;
+                await renderPage(currentPageNum);
+            }
+        });
+    }
+
+    // 新增：更新页码显示
+    function updatePageIndicator() {
+        const indicator = document.getElementById('pageIndicator');
+        if (indicator) {
+            indicator.textContent = `第 ${currentPageNum} 页 / 共 ${totalPages} 页`;
+        }
+    }
+
+    // 新增：加载状态提示
+    function showLoading(show) {
+        const loading = document.getElementById('loading');
+        if (!loading && show) {
+            const div = document.createElement('div');
+            div.id = 'loading';
+            div.textContent = '加载中...';
+            document.getElementById('preview').appendChild(div);
+        } else if (loading && !show) {
+            loading.remove();
+        }
+    }
+    // 渲染缩略图预览
+    async function renderThumbnails() {
+        const thumbContainer = document.createElement('div');
+        thumbContainer.style.display = 'flex';
+        thumbContainer.style.flexWrap = 'wrap';
+        
+        for (let i = 1; i <= totalPages; i++) {
+            const page = await currentPdfDoc.getPage(i);
+            const viewport = page.getViewport({ scale: 0.2 });
+            
+            const canvas = document.createElement('canvas');
+            canvas.style.margin = '5px';
+            canvas.style.cursor = 'pointer';
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            
+            await page.render({
+                canvasContext: canvas.getContext('2d'),
+                viewport: viewport
+            }).promise;
+            
+            canvas.onclick = () => {
+                currentPageNum = i;
+                renderPage(currentPageNum);
+            };
+            thumbContainer.appendChild(canvas);
+        }
+        
+        document.getElementById('preview').appendChild(thumbContainer);
+    }
+        // 添加鼠标滚动翻页功能
+        let isScrolling = false;
+        let scrollThreshold = 50; // 滚动阈值（像素）
+        let lastScrollTime = 0;
+
+        // 监听鼠标滚轮事件
+        document.addEventListener('wheel', handleWheel, { passive: false });
+
+        function handleWheel(e) {
+            e.preventDefault();
+            
+            // 防抖处理（300ms间隔）
+            const now = Date.now();
+            if (now - lastScrollTime < 300) return;
+            lastScrollTime = now;
+
+            // 判断滚动方向
+            const delta = Math.sign(e.deltaY);
+            
+            if (delta > 0) {
+                nextPage();
+            } else if (delta < 0) {
+                previousPage();
+            }
+        }
+        //添加触摸滑动支持
+        let touchStartY = 0;
+        document.addEventListener('touchstart', e => {
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        document.addEventListener('touchend', e => {
+            const touchEndY = e.changedTouches[0].clientY;
+            const deltaY = touchEndY - touchStartY;
+            
+            if (Math.abs(deltaY) > 50) {
+                if (deltaY > 0) {
+                    previousPage();
+                } else {
+                    nextPage();
+                }
+            }
+        }, { passive: true });
+
+        function previousPage() {
+            if (currentPageNum > 1) {
+                renderPage(currentPageNum - 1);
+                currentPageNum--;
+                //addPageTransition('up');
+            }
+        }
+
+        function nextPage() {
+            if (currentPageNum < currentPdfDoc.numPages) {
+                renderPage(currentPageNum + 1);
+                currentPageNum++;
+                //addPageTransition('down');
+            }
+        }
+        // 添加翻页动画
+        function addPageTransition(direction) {
+            const canvas = document.getElementById('pdf-canvas');
+            canvas.style.transition = 'transform 0.3s ease';
+            canvas.style.transform = `translateY(${direction === 'down' ? '-' : ''}20px)`;
+            
+            setTimeout(() => {
+                canvas.style.transition = '';
+                canvas.style.transform = '';
+            }, 300);
+        }
+
+        // 初始化设置
+        function init() {
+            const textInput = document.getElementById('textInput');
+            const container = document.querySelector('.input-container');
+
+            setMainLayout(container, messageContainer);
+
+            // 初始高度设置
+            autoExpand(textInput);
+
+            // 输入事件监听
+            textInput.addEventListener('input', function() {
+                autoExpand(this);
+            });
+
+            // 窗口大小变化监听
+            window.addEventListener('resize', () => {
+                autoExpand(textInput);
+                setMainLayout(container, messageContainer);
+            });
+            messageContainer.addEventListener('scroll', handleScroll);
+            
+        }
+
+        window.onload = init;
+
+    </script>
+</body>
+</html>

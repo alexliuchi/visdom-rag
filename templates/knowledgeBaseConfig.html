@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>知识库配置页面</title>
+    <!-- 引入本地 Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='knowledgeconfig.css') }}">
+    <style>
+        body {
+            overflow-x: hidden;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        // 标签切换功能
+       function switchTab(evt, tabName) {
+           // 切换按钮状态
+           document.querySelectorAll('.kb-config-tab-btn').forEach(btn => {
+               btn.classList.remove('active');
+           });
+           evt.currentTarget.classList.add('active');
+
+           // 切换内容显示
+           document.querySelectorAll('.kb-config-tab-content').forEach(content => {
+               content.style.display = 'none';
+           });
+           document.getElementById(tabName).style.display = 'block';
+       }
+   </script>
+   <div class="kb-config-container">
+       <!-- 标签导航 -->
+       <div class="kb-config-tab-nav">
+           <button class="kb-config-tab-btn active" onclick="switchTab(event, 'docs')">文档资料</button>
+           <button class="kb-config-tab-btn" onclick="switchTab(event, 'database')">企业数据库</button>
+           <button class="kb-config-tab-btn" onclick="switchTab(event, 'external')">外部资料</button>
+           <button class="kb-config-tab-btn" onclick="switchTab(event, 'others')">其他</button>
+       </div>
+
+       <!-- 文档资料 -->
+       <div id="docs" class="kb-config-tab-content" style="display: block;">
+            <iframe 
+                id="kbDocsPage" 
+                style="width: 100%; height: 600px; border: 0px solid #ccc;"
+                src="{{ url_for('uploadFiles') }}">
+            </iframe>
+       </div>
+       <!--企业数据库 -->
+       <div id="database" class="kb-config-tab-content" style="display: none;">
+            <iframe 
+                id="kbDatabasePage"
+                style="width: 100%; height: 600px; border: 0px solid #ccc;"
+                src="{{ url_for('connectDB') }}">
+            </iframe>
+       </div>
+       <!--外部资源 -->
+       <div id="external" class="kb-config-tab-content" style="display: none;">
+            <iframe 
+                id="kbExtraResourcePage"
+                style="width: 100%; height: 600px; border: 0px solid #ccc;"
+                src="{{ url_for('extralResources') }}">
+            </iframe>
+        </div>
+       <!-- 预留如外部资源 -->
+       <div id="others" class="kb-config-tab-content" style="display: none;">
+           coming soon...
+       </div>
+   </div>
+   <br>
+
+    <script>
+        
+        const fileInput = document.getElementById('fileInput');
+        const statusDiv = document.getElementById('status');
+        const knowledgeBaseDesc = localStorage.getItem('knowledgeBaseDesc');
+        const knowledgeBaseName = localStorage.getItem('knowledgeBaseName');
+        
+        //进入默认是docs
+        document.querySelectorAll('.kb-config-tab-btn').forEach(btn => {
+               btn.classList.remove('active');
+        });
+        document.getElementById('kbDocsPage').src = "{{ url_for('uploadFiles') }}";
+
+        // 监听来自 iframe 的消息
+        window.addEventListener('message', function(event) {
+            // 检查消息来源是否可信
+            if (event.origin === 'http://127.0.0.1:5000') { // 替换为正确的域名
+                // 获取消息数据
+                var data = event.data;
+                if (data.action === 'gotoRagSettings') {
+                    // 修改 iframe 的 src 属性
+                    document.getElementById('kbDocsPage').src = data.url;
+                }
+                if (data.action === 'gotoResListPage') {
+                    // 修改 iframe 的 src 属性
+                    document.getElementById('kbDocsPage').src = data.url;
+                }
+                if( data.action === 'gotoUploadFilesPage') {
+                    document.getElementById('kbDocsPage').src = data.url;
+                }
+                // 监听来自b.html的消息
+                if (event.data?.type === 'CLOSE_PARENT') {
+                    // 转发消息到main.html
+                    //console.log('event.data.payload:',event.data.payload)
+                    window.parent.handleDataUpdate(event.data.payload);
+                }
+                if(data.action === 'gotoDatabaseConfig'){
+                    document.getElementById('kbDatabasePage').src = data.url;
+                }
+                if(data.action === 'gotoConnectDBPage'){
+                    document.getElementById('kbDatabasePage').src = data.url;
+                }
+                if (data.action === 'gotoDBResListPage') {
+                    document.getElementById('kbDatabasePage').src = data.url;
+                }
+            }
+        });
+        
+        function previewInfo(){
+
+        }
+    </script>
+</body>
+</html>

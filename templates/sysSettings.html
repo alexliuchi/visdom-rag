@@ -1,0 +1,223 @@
+<html>
+    <head>
+        <!-- 引入本地 Font Awesome 图标库 -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='settings.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}">
+        <style>
+            .body {
+                overflow-x: hidden;
+            }
+        </style>
+    </head>
+<body>
+    <script src="{{ url_for('static', filename='common.js') }}"></script>
+    <script>
+    // 标签切换功能
+    function switchTab(evt, tabName) {
+        // 切换按钮状态
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        evt.currentTarget.classList.add('active');
+
+        // 切换内容显示
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.style.display = 'none';
+        });
+        document.getElementById(tabName).style.display = 'block';
+    }
+    // 动态添加停止序列
+    function addStopSequence() {
+        const container = document.getElementById('stop-sequences');
+        const newInput = document.createElement('input');
+        newInput.type = 'text';
+        newInput.placeholder = '输入停止符';
+        newInput.style.marginBottom = '8px';
+        container.appendChild(newInput);
+    }
+
+    // 添加提示词模板
+    function addPromptTemplate() {
+        const tbody = document.getElementById('prompt-templates');
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td><input class="settings-input" type="text" placeholder="模板名称"></td>
+            <td><textarea class="settings-textarea" rows="2"></textarea></td>
+            <td><textarea class="settings-textarea" rows="2"></textarea></td>
+            <td><textarea class="settings-textarea" rows="2">工程类</textarea></td>
+            <td>
+                <button class="settings-delete-btn" onclick="deleteRow(this)">删除</button>
+            </td>
+        `;
+        tbody.appendChild(newRow);
+    }
+    // 删除表格行
+    function deleteRow(btn) {
+        const row = btn.closest('tr');
+        row.parentNode.removeChild(row);
+    }
+    </script>
+    <!--左下角配置功能-->
+    <div class="config-container">
+        <!-- 标签导航 -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab(event, 'llm')">LLM参数</button>
+            <button class="tab-btn" onclick="switchTab(event, 'prompt')">提示词工具</button>
+            <button class="tab-btn" onclick="switchTab(event, 'rag')">RAG设置</button>
+        </div>
+
+        <!-- LLM参数配置 -->
+        <div id="llm" class="tab-content" style="display: block;">
+            <div class="form-section">
+                <div class="form-row">
+                    <label class="settings-label" >温度值 (Temperature):
+                        <span class="tooltip-icon">?</span>
+                        <span class="tooltip-text">
+                            控制生成文本的随机性（0~2）<br>
+                            • 较低值（如0.2）产出更确定但保守<br>
+                            • 较高值（如0.8）产出更创意但可能跑题<br>
+                            默认推荐值0.7
+                        </span>
+                    </label>
+                    <input  class="settings-input" type="number" step="0.1" min="0" max="2" value="0.7">
+                </div>
+                <div class="form-row">
+                    <label class="settings-label" >最大 Token 数:
+                        <span class="tooltip-icon">?</span>
+                        <span class="tooltip-text">
+                            单次请求允许消耗的最大token数量（1~4096）<br>
+                            • 控制响应长度和计算资源消耗<br>
+                            • 超过模型上限将自动截断<br>
+                            常规对话建议2048
+                        </span>
+                    </label>
+                    <input  class="settings-input" type="number" min="1" max="4096" value="2048">
+                </div>
+                <div class="form-row">
+                    <label class="settings-label" >Top-P&TOP-K采样:
+                        <span class="tooltip-icon">?</span>
+                        <span class="tooltip-text">
+                            Top-P 的应用场景：
+                            • 文本生成（文章、故事、诗歌等）
+                            • 对话系统
+                            • 代码生成
+                            • 图像描述生成
+                            Top-K 的应用场景
+                            • 对话系统
+                            • 文本补全
+                            • 文本生成
+                            • 机器翻译
+                            • 图像描述生成
+                        </span>
+                    </label>
+                    <input  class="settings-input" type="number" step="0.1" min="0" max="1" value="0.9">
+                </div>
+                <div class="form-row">
+                    <label class="settings-label" >停止序列:
+                        <span class="tooltip-icon">?</span>
+                        <span class="tooltip-text">
+                            定义生成终止的条件（如遇到特定符号或短语）。
+                        </span>
+                    </label>
+                    <div>
+                        <div id="stop-sequences">
+                            <input  class="settings-input" type="text" placeholder="输入停止符" style="margin-bottom: 8px;">
+                        </div>
+                        <button class="settings-action-btn" onclick="addStopSequence()">+ 添加序列</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 提示词工具 -->
+        <div id="prompt" class="tab-content" style="display: none;">
+            <div class="form-section">
+                <h3>提示词模板管理</h3>
+                <table class="prompt-table">
+                    <thead>
+                        <tr>
+                            <th>模板名称</th>
+                            <th>用户提问模板</th>
+                            <th>应答模板</th>
+                            <th>分类</th>
+                            <th>操&nbsp;&nbsp;&nbsp;&nbsp;作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="prompt-templates">
+                        <tr>
+                            <td><input  class="settings-input" type="text" value="默认模板"></td>
+                            <td><textarea class="settings-textarea" rows="2">请根据以下内容回答问题：{content}</textarea></td>
+                            <td><textarea class="settings-textarea" rows="2">我将基于以下信息回答：{content}</textarea></td>
+                            <td><textarea class="settings-textarea" rows="2">金融投资类</textarea></td>
+                            <td>
+                                <button class="settings-delete-btn">删除</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class="settings-action-btn" onclick="addPromptTemplate()">+ 新建模板</button>
+            </div>
+
+            <div class="form-section">
+                <div class="form-row">
+                    <label class="settings-label" >导入外部提示词:</label>
+                    <textarea class="settings-textarea" rows="4" placeholder="输入系统级指令..."></textarea>
+                    <file  ></file>
+                </div>
+                <div class="form-row">
+                    <label class="settings-label" >导入外部提示词:</label>
+                    <select class="settings-select"  >
+                        <option>自动管理</option>
+                        <option>手动管理</option>
+                        <option>固定长度窗口</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label class="settings-label" >元指令:</label>
+                    <textarea class="settings-textarea" rows="4" placeholder="输入系统级指令..."></textarea>
+                </div>
+                <div class="form-row">
+                    <label class="settings-label" >上下文管理:</label>
+                    <select class="settings-select"  >
+                        <option>自动管理</option>
+                        <option>手动管理</option>
+                        <option>固定长度窗口</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- RAG设置 -->
+        <div id="rag" class="tab-content" style="display: none;">
+            <div class="form-section">
+                <div class="form-row">
+                    <label class="settings-label" >检索数量 (top_k):</label>
+                    <input  class="settings-input" type="number" min="1" max="100" value="5">
+                </div>
+                <div class="form-row">
+                    <label class="settings-label" >相似度阈值:
+                        <span class="tooltip-icon">?</span>
+                        <span class="tooltip-text">
+                            检索内容匹配度过滤标准（0~1）<br>
+                            • 值越高要求越严格（0.8以上适合精准匹配）<br>
+                            • 值越低召回结果越多（0.5以下可能包含噪声）<br>
+                            根据数据质量调整
+                        </span>
+                    </label>
+                    <input class="settings-input" id="settings-input" type="range" min="0" max="1" step="0.05" value="0.7">
+                    <span id="threshold-value">0.7</span>
+                </div>
+                <div class="form-row">
+                    <label class="settings-label" >检索策略:</label>
+                    <select class="settings-select"  >
+                        <option>混合检索</option>
+                        <option>语义检索</option>
+                        <option>关键词检索</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

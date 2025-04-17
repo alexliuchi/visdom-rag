@@ -1,0 +1,244 @@
+<html>
+    <head>
+        <!-- 引入本地 Font Awesome 图标库 -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='database.css') }}">
+        <style>
+            body{
+                overflow-x: hidden;
+            }
+            #databaseMgr {
+               font-size:12px;
+               width: 95%;
+            }
+        </style>
+    </head>
+<body>
+    <script src="{{ url_for('static', filename='knowledgelib.js') }}"></script>
+    <div style="text-align: center;">
+        <img src="{{ url_for('static', filename='step2.png') }}"></img>
+    </div>
+    <!--知识库管理下的数据库的数据源管理-->
+    <div id="databaseMgr">
+        <!-- 查询配置面板 -->
+        <div class="panel">
+            <p style="font-weight: bold;">选择数据配置</p>
+            <details open>
+            <summary>常规选项</summary>
+                 <!-- SQL生成器 -->
+                <div class="sql-builder" style="border:1px solid #0066CC; margin-left:5px; border-radius: 4px;">
+                    <form id="generalSettings">
+                        <!-- 左侧表结构 -->
+                        <div id="generalBasicInfo" class="schema-panel" style="padding-left: 5px; padding-bottom: 5px;">
+                            <p style="font-weight: bold;">当前所选数据库表</p>
+                        </div>
+                        <!-- 查询问题 -->
+                        <div class="schema-panel" style="padding-left: 5px; padding-bottom: 5px;">
+                            <p style="font-weight: bold;">查询问题</p>
+                            <div style="padding: 2px; background: #f8f9fa; margin: 4px; border-radius: 4px;">
+                                <textarea id="userQuestion" style="width:100%; padding:8px;box-sizing:border-box;" placeholder="请输入一个问题作为查询所选数据表数据作为知识库信息抽查预览,如product标中最贵的产品是什么?"></textarea>
+                            </div>
+                        </div>
+                        <!-- 自定义提示模板 -->
+                        <div class="schema-panel" style="padding-left: 5px; padding-bottom: 5px;">
+                            <p style="font-weight: bold;">自定义提示模板</p>
+                            <div style="padding: 2px; background: #f8f9fa; margin: 4px; border-radius: 4px;">
+                                <textarea id="promptTemplate" style="width:100%; padding:8px;box-sizing:border-box;" placeholder="你是一个 PostgreSQL 专家。根据以下表结构：{schema}问题：{query_str}请生成一个安全的 SQL 查询，避免使用 JOIN 除非必要，并优先使用 CTE（WITH 子句）。"></textarea>
+                            </div>
+                        </div>
+                        <!-- 多表时额外说明 -->
+                        <div class="schema-panel" style="padding-left: 5px; padding-bottom: 5px;">
+                            <p style="font-weight: bold;">多表关系标注</p>
+                            <div style="padding: 2px; background: #f8f9fa; margin: 4px; border-radius: 4px;">
+                                <textarea id="contextStr" style="width:100%; padding:8px;box-sizing:border-box;" placeholder="实力模板:表 sales 的 product_id 对应表 products 的 id；表 sales 的 customer_id 对应表 customers 的 id"></textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- 右侧预览 -->
+                        <div class="preview-panel" style="padding-left: 5px; padding-bottom: 5px;">
+                            <p id="previewInfoStatus" style="font-weight: bold;">预览信息</p>
+                            <pre id="preViewInfo" style="max-width: 100%;word-wrap: break-word; white-space: pre-wrap;background: #f8f9fa; border-radius: 4px;display:none;">
+                            </pre>
+                            <button id="previewBtn" class="btn btn-primary" type="submit">运行预览</button>
+                        </div>
+                    </form>
+                </div>
+            </details>
+            <!-- 高级选项 
+            <details>
+                <summary>显示高级选项</summary>
+                
+                <div class="advanced-toggle" style="border:1px solid #0066CC; padding: 1rem; border-radius: 4px;">▼ 显示高级选项</div>
+            </details>
+            -->
+            <details>
+                <summary>存储过程调用</summary>
+                <div style="border:1px solid #0066CC; margin-left:5px; border-radius: 4px;">
+                    <p style="font-weight: bold;">返回数据集的函数/存储过程调用</p>
+                    <select>
+                        <option>generate_monthly_report</option>
+                        <option>calculate_customer_lifetime_value</option>
+                    </select>
+                </div>
+            </details>
+        </div>
+   
+        <!-- 优化配置面板-->
+        <div class="panel">
+            <p style="font-weight: bold;">性能优化</p>
+            <details>
+                <summary>数据库</summary>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;border:1px solid #0066CC; padding: 1rem; border-radius: 4px;">
+                    <div>
+                        <h4>索引建议</h4>
+                        <div style="background: #f8f9fa; padding: 1rem; border-radius: 4px;">
+                            <div style="margin-bottom: 8px;">
+                                <input type="checkbox"> 在 orders.customer_id 上创建索引
+                                <span style="color: #666; font-size: 0.9em;">(预计加速 75%)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4>缓存设置</h4>
+                        <div style="background: #f8f9fa; padding: 1rem; border-radius: 4px;">
+                            <label>缓存时间 (分钟): </label>
+                            <input type="range" min="0" max="120" value="30">
+                        </div>
+                    </div>
+                </div>
+            </details>
+        </div>
+        <div id="knowledge">
+            <p style="font-weight: bold;">RAG系统操作</p>
+             <!-- 优化配置面板
+            <details>
+                <summary>知识库操作</summary>
+                <div style="border:1px solid #0066CC; padding: 1rem; border-radius: 4px;">
+                <label for="data-source">选择数据源：</label>
+                <select id="data-source">
+                    <option value="Postgres">Postgres</option>
+                    <option value="SQL Server">SQL Server</option>
+                    <option value="MySQL">MySQL</option>
+                </select>
+                <label for="knowledge-input">输入查询：</label>
+                <input type="text" id="knowledge-input" placeholder="请输入查询内容">
+                <button id="processButton">处理数据</button>
+                <div id="knowledge-output"></div>
+            </details>
+            -->
+        </div>
+        <div style="margin-top: 15px;text-align: center;">
+            <button id="knowledgeBasePrevPage"onclick="gotoConnectDB()">上一步</button>&nbsp;&nbsp;&nbsp;&nbsp;
+            <button id="knowledgeBaseNextvPage" onclick="gotoDBResListPage()" style="right:20%">下一步</button>
+        </div>
+    </div>
+    <script>
+         const form = document.getElementById('generalSettings');
+         const selectedItems = localStorage.getItem('selectedItems');
+         const basicInfo = document.getElementById('generalBasicInfo');
+         const databaseInfo = JSON.parse(localStorage.getItem('databaseInfo'));
+         const nextvPageBtn = document.getElementById('knowledgeBaseNextvPage');
+         nextvPageBtn.isdisabled = true;
+         const selectedDatabase = JSON.parse(selectedItems)[0].database.split('-')[1];
+         basicInfo.innerHTML += JSON.parse(selectedItems)[0].tables.map((item) =>  `<div style="padding: 8px; background: #f8f9fa; margin: 4px; border-radius: 4px;">
+                                    ${selectedDatabase}.${item}
+                                    <div style="font-size: 0.9em; color: #666;">${getColumnsByDatabaseAndTable(databaseInfo, selectedDatabase, item)}</div>
+                                </div> `).join(''); 
+        function getColumnsByDatabaseAndTable(jsonData, databasename, tableName) {
+            const database = jsonData.find(db => db.database === databasename);
+            if (!database) {
+                return "";
+            }
+            const table = database.columns.find(item => item.table === tableName);
+            if (!table) {
+                return "";
+            }
+            return table.columns.join(", ");
+        }
+                 
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const userQuestion = document.getElementById('userQuestion');
+            const promptTemplate = document.getElementById('promptTemplate');
+            const contextStr = document.getElementById('contextStr');
+            const dbInfo = JSON.parse(localStorage.getItem('dbInfo'));
+            const databaseQueryData = {
+                "dbType":dbInfo.dbType,
+                "dbPort":dbInfo.dbPort,
+                "dbUrl":dbInfo.dbUrl,
+                "dbUser":dbInfo.dbUser,
+                "dbPassword":dbInfo.dbPassword,
+                "dbName": selectedDatabase,
+                "tableNames": JSON.parse(selectedItems)[0].tables,
+                "user_query": userQuestion.value,
+                "promptTemplate": promptTemplate.value,
+                "context_str": contextStr.value,
+                "llm_model_name": localStorage.getItem('currentSelectedModel'),
+                "knowledgeBaseName":dbInfo.knowledgeBaseName,
+                "knowledgeBaseDesc":dbInfo.knowledgeBaseDesc
+            }
+           
+            try {
+                const previewInfoStatus = document.getElementById('previewInfoStatus');
+                previewInfoStatus.innerHTML = '预览信息'+'<i class="fas fa-sync fa-spin"></i>';
+                const response = await fetch('http://127.0.0.1:5000/api/vrv-rag/database/prepare', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(databaseQueryData)
+                })
+
+                if (!response.ok) {
+                    throw new Error(`HTTP错误! 状态码: ${response.status}`);
+                }
+            
+               const result = await response.json();
+
+               const preViewInfo = document.getElementById('preViewInfo');
+               preViewInfo.style.display = 'block';
+               preViewInfo.textContent = result.TSql;
+            } catch (error) {
+                preViewInfo.style.display = 'block';
+                preViewInfo.textContent = error.message;
+            }finally{
+                previewInfoStatus.innerHTML = '预览信息';
+                nextvPageBtn.isdisabled = false;
+            }
+
+            const maxIndex = knowledgeLibList.length;
+            knowledgeLibList.push({ id: maxIndex + 1, title: dbInfo.knowledgeBaseName, description: "","description_1":  dbInfo.knowledgeBaseDesc,
+                        config: {
+                                "docs": {},
+                                "database":JSON.stringify(databaseQueryData),
+                }
+            });
+            localStorage.removeItem("currentknowledgebase");
+            localStorage.setItem("currentknowledgebase", JSON.stringify({ id: maxIndex + 1, title: dbInfo.knowledgeBaseName, description: "","description_1":  dbInfo.knowledgeBaseDesc,
+                        config: {
+                                "docs": {},
+                                "database":JSON.stringify(databaseQueryData),
+                }
+            }));
+                
+        });
+
+        function gotoConnectDB() {
+            window.parent.postMessage({
+                action: 'gotoConnectDBPage',
+                url: "{{ url_for('connectDB') }}"
+            }, 'http://127.0.0.1:5000'); // 替换为正确的域名
+        }
+        function gotoDBResListPage() {
+            window.parent.postMessage({
+                action: 'gotoDBResListPage',
+                url: "{{ url_for('knowledgeResList') }}"
+            }, 'http://127.0.0.1:5000'); // 替换为正确的域名
+
+            }
+    </script>
+    <script src="{{ url_for('static', filename='databases.js') }}"></script>
+</body>
+</html>

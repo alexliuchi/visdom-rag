@@ -1,0 +1,172 @@
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <!-- 引入本地 Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='modelmgr.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='database.css') }}">
+    <style>
+
+    </style>
+</head>
+<body>
+    <script src="{{ url_for('static', filename='modelmgr.js') }}"></script>
+    <script>
+         // 标签切换功能
+        function switchTab(evt, tabName) {
+            // 切换按钮状态
+            document.querySelectorAll('.model-mgr-tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            evt.currentTarget.classList.add('active');
+
+            // 切换内容显示
+            document.querySelectorAll('.model-mgr-tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            document.getElementById(tabName).style.display = 'block';
+        }
+    </script>
+    <div class="model-mgr-container">
+        <!-- 标签导航 -->
+        <div class="model-mgr-tab-nav">
+            <button class="model-mgr-tab-btn active" onclick="switchTab(event, 'llmList')">模型列表</button>
+            <button class="model-mgr-tab-btn" onclick="switchTab(event, 'llmFactory')">模型工厂</button>
+            <button class="model-mgr-tab-btn" onclick="switchTab(event, 'llmOthers')">其他</button>
+        </div>
+
+        <!-- LLM列表 -->
+        <div id="llmList" class="model-mgr-tab-content" style="display: block;">
+            <!--模型列表容器-->
+            <div class="llm-list-container" id="llmListContainer"><p>大模型模型列表</p></div>
+            <div class="embed-list-container" id="embedListContainer"><p>嵌入模型列表</p></div>
+            <div class="rerank-list-container" id="rerankListContainer"><p>重排模型列表</p></div>
+        </div>
+        <!--模型生产 -->
+        <div id="llmFactory" class="model-mgr-tab-content" style="display: none;">
+            <p style="font-size:12px;font-weight: bold;">将提供模型生产功能,无代码(no-code ) 生产/预训练/微调自己的大语言模型 敬请期待coming soon...</p>
+            <div id="extraResources" style="width: 90%;padding:5px;">
+                <div class="panel" style="padding-left: 5px; padding-bottom: 5px;">
+                    <p style="font-size:12px;font-weight: bold;"></p>
+                    <details>
+                    <summary style="font-size:13px;font-weight: bold;">模型创建预训练</summary>
+                        <div style="border:1px solid #0066CC; margin-left:5px; border-radius: 4px;">
+                            <form id="knowledgeBaseAddress">
+                                <!-- 填写Web网页url地址 -->
+                                <div class="schema-panel" style="padding-left: 5px; padding-bottom: 5px;">
+                                    <p style="font-size:12px;font-weight: bold;"></p>
+                                    <div id="extraKBs"style="padding: 5px; background: #f8f9fa; margin: 4px; border-radius: 4px;">
+                                        <input type="text" id="webPageURL-0" style="width:100%; padding:8px;box-sizing:border-box;" placeholder=""></input> 
+                                    </div>
+                                </div>
+                                <!-- 预览 -->
+                                <div class="preview-panel" style="padding-left: 5px; padding-bottom: 5px;">
+                                    <p id="previewKBInfoStatus" style="font-size:12px;font-weight: bold;">预览信息</p>
+                                    <pre id="preKBViewInfo" style="max-width: 100%;word-wrap: break-word; white-space: pre-wrap;background: #f8f9fa; border-radius: 4px;display:none;">
+                                    </pre>
+                                    <button id="previewKBBtn" class="btn btn-primary" type="submit">运行预览</button>
+                                </div>
+                            </form>
+                        </div>
+                    </details>
+                </div>
+                <div class="panel" style="padding-left: 5px; padding-bottom: 5px;">
+                    <p style="font-size:12px;font-weight: bold;"></p>
+                    <details>
+                    <summary style="font-size:13px;font-weight: bold;">模型微调</summary>
+                        <div style="border:1px solid #0066CC; margin-left:5px; border-radius: 4px;">
+                            <form id="knowledgeBaseAddress">
+                                <!-- 填写Web网页url地址 -->
+                                <div class="schema-panel" style="padding-left: 5px; padding-bottom: 5px;">
+                                    <p style="font-size:12px;font-weight: bold;"></p>
+                                    <div id="extraKBs"style="padding: 5px; background: #f8f9fa; margin: 4px; border-radius: 4px;">
+                                        <input type="text" id="webPageURL-0" style="width:100%; padding:8px;box-sizing:border-box;" placeholder="请在此配置连接外部知识库，这些知识库包含您想要的最新信息作为补充数据资料"></input> 
+                                    </div>
+                                </div>
+                                <!-- 预览 -->
+                                <div class="preview-panel" style="padding-left: 5px; padding-bottom: 5px;">
+                                    <p id="previewKBInfoStatus" style="font-size:12px;font-weight: bold;">预览信息</p>
+                                    <pre id="preKBViewInfo" style="max-width: 100%;word-wrap: break-word; white-space: pre-wrap;background: #f8f9fa; border-radius: 4px;display:none;">
+                                    </pre>
+                                    <button id="previewKBBtn" class="btn btn-primary" type="submit">运行预览</button>
+                                </div>
+                            </form>
+                        </div>
+                    </details>
+                </div>
+                <div class="panel" style="padding-left: 5px; padding-bottom: 5px;">
+                    <p style="font-size:12px;font-weight: bold;"></p>
+                    <details>
+                    <summary style="font-size:13px;font-weight: bold;">模型测试评估</summary>
+                        <div style="border:1px solid #0066CC; margin-left:5px; border-radius: 4px;">
+                            <p style="font-size:12px;">模型测试评估<br><br>
+                            <select id="searchEngine">
+                                <option>       </option>
+                                <option>搜   狗</option>
+                                <option>百   度</option>
+                                <option>360搜索</option>
+                                <option>Elasticsearch</option>
+                                <option>MindSearch</option>
+                            </select>
+                            <br>
+                            <img src="{{ url_for('static', filename='searchEngine.png') }}"></img>
+                        </div>
+                    </details>
+                </div>
+                <div class="panel" style="padding-left: 5px; padding-bottom: 5px;">
+                    <p style="font-size:12px;font-weight: bold;"></p>
+                    <details>
+                    <summary style="font-size:13px;font-weight: bold;">模型发布部署</summary>
+                        <div style="border:1px solid #0066CC; margin-left:5px; border-radius: 4px;">
+                            <p style="font-size:12px;">模型发布部署<br><br>
+                            <select id="searchEngine">
+                                <option>       </option>
+                                <option>搜   狗</option>
+                                <option>百   度</option>
+                                <option>360搜索</option>
+                                <option>Elasticsearch</option>
+                                <option>MindSearch</option>
+                            </select>
+                            <br>
+                            <img src="{{ url_for('static', filename='searchEngine.png') }}"></img>
+                        </div>
+                    </details>
+                </div>
+        </div>
+        <!-- 预留 -->
+        <div id="llmOthers" class="model-mgr-tab-content" style="display: none;">
+            coming soon...
+        </div>
+    </div>
+    
+    <script>
+        const llmListContainer = document.querySelector('.llm-list-container');
+        const rerankListContainer = document.querySelector('.rerank-list-container');
+        const embedListContainer = document.querySelector('.embed-list-container');
+        function llmClickFunction() {
+            console.log('llmClickFunction is invoked');
+            openConfigModal()
+        }
+        function embedClickFunction() {
+            console.log('embedClickFunction is invoked');
+        }
+        function rerankClickFunction() {
+            console.log('rerankClickFunction is invoked');
+        }
+        function generateContent(){
+            initModelList(llmListContainer, modelListDataSet.llm, "llm-list-", llmClickFunction);
+            initModelList(rerankListContainer, modelListDataSet.rerank, "rerank-list-", rerankClickFunction);
+            initModelList(embedListContainer, modelListDataSet.embed, "embed-list-", embedClickFunction);
+            llmListContainer.style.display = 'flex';
+            rerankListContainer.style.display = 'flex';
+            embedListContainer.style.display = 'flex';
+            // 向父窗口发送消息
+            window.parent.postMessage({
+                type: 'DYNAMIC_CONTENT_LOADED'
+            }, 'http://127.0.0.1:5000'); // 替换为你的域名
+        }
+
+        document.addEventListener('DOMContentLoaded', generateContent);
+    </script>
+</body>
+</html>

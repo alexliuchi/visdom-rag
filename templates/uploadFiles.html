@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"></meta>
+    <title>文件上传</title>
+    <!-- 引入本地 Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='uploadfiles.css') }}">
+    <style>
+        body {
+            font-size: 14px;
+            overflow-x: hidden;
+        }
+    </style>
+    </style>
+</head>
+<body>
+    <script src="{{ url_for('static', filename='uploadfiles.js') }}"></script>
+    <div style="text-align: center;">
+        <img src="{{ url_for('static', filename='step1.png') }}"></img>
+    </div>
+    <div style="padding: 20px;margin-top: 5px;">
+        <form id="uploadForm" enctype="multipart/form-data">
+            知识库名称:&nbsp;&nbsp;<input type="text" id="knowledgeBaseName" name="knowledgeBaseName"><br><br>
+            知识库描述:&nbsp;&nbsp;<input type="textarea" id="knowledgeBaseDesc" name="knowledgeBaseDesc"><br><br>
+            <div>
+                <label for="processMode">处理模式:</label>
+                <select id="processMode" name="processMode">
+                    <option value="text">纯文字检索</option>
+                    <option value="textImg">文字+图片检索</option>
+                </select><br><br>
+                <input type="radio" id="multipleFiles" name="uploadType" value="multipleFiles" checked accept=".txt,.pdf,.ppt,.docx,.md">
+                <label for="multipleFiles">上传多个文件</label>
+                <input type="radio" id="folder" name="uploadType" value="folder">
+                <label for="folder">上传文件夹</label>
+            </div>
+            <div>
+                <p>支持的文件格式：txt, pdf, ppt, docx, markdown (单个文件大小限制50M)</p>
+                <input type="file" id="fileInput" name="files" accept=".txt,.pdf,.ppt,.docx,.md"><button type="submit">上传</button>
+            </div>
+        </form>
+        <div id="status"></div>
+        <table class="uploadfiles-table">
+            <thead>
+                <tr>
+                    <th class="uploadfiles-th">文件名</th>
+                    <th class="uploadfiles-th">文件大小 (KB)</th>
+                    <th class="uploadfiles-th">上传时间</th>
+                </tr>
+            </thead>
+            <tbody id="uploadedFilesTable">
+                <!-- 动态插入行 -->
+            </tbody>
+        </table>
+    </div>
+    <div style="text-align: center;margin-top:20px;">
+        <button id="knowledgeBaseNextPage" onclick="gotoRagSettings()" style="right:20%">下一步</button>
+    </div>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('fileInput');
+        const statusDiv = document.getElementById('status');
+        const knowledgeBaseDesc = document.getElementById('knowledgeBaseDesc');
+        const knowledgeBaseName = document.getElementById('knowledgeBaseName');
+        const uploadedFilesTableBody = document.getElementById("uploadedFilesTable");
+        const knowledgeBaseNextPage = document.getElementById("knowledgeBaseNextPage");
+        const processMode = document.getElementById('processMode');
+        const whoInvoked = "{{ param }}";
+
+        knowledgeBaseNextPage.disabled = true; // 初始禁用发送按钮
+        fileInput.multiple = true;
+        fileInput.removeAttribute('webkitdirectory');
+
+        function gotoRagSettings() {
+            localStorage.removeItem('processMode');
+            localStorage.removeItem('knowledgeBaseDesc');
+            localStorage.removeItem('knowledgeBaseName');
+            localStorage.setItem('processMode', processMode.value);
+            localStorage.setItem('knowledgeBaseDesc', knowledgeBaseDesc.value);
+            localStorage.setItem('knowledgeBaseName', knowledgeBaseName.value);
+            
+            if(whoInvoked === "knowledgeGraphConfig"){
+                console.log('whoInvoked:', whoInvoked);
+                // 向父窗口发送消息
+                window.parent.postMessage({
+                    action: 'gotoRagSettings',
+                    url: "{{ url_for('knowledgeGraphSettings') }}"
+                }, 'http://127.0.0.1:5000'); // 替换为正确的域名
+
+            } else{
+                console.log('whoInvoked::', whoInvoked);
+                // 向父窗口发送消息
+                window.parent.postMessage({
+                    action: 'gotoRagSettings',
+                    url: "{{ url_for('ragSettings') }}"
+                }, 'http://127.0.0.1:5000'); // 替换为正确的域名
+            }
+        }
+
+        function addUploadedFileToTable(fileName, fileSize, uploadTime) {
+            const row = document.createElement('tr');
+
+            const fileNameCell = document.createElement('td');
+            fileNameCell.textContent = fileName;
+            fileNameCell.className = 'uploadfiles-td';
+
+            const fileSizeCell = document.createElement('td');
+            fileSizeCell.textContent = fileSize;
+            fileSizeCell.className = 'uploadfiles-td';
+
+            const uploadTimeCell = document.createElement('td');
+            uploadTimeCell.textContent = uploadTime;
+            uploadTimeCell.className = 'uploadfiles-td';
+
+            row.appendChild(fileNameCell);
+            row.appendChild(fileSizeCell);
+            row.appendChild(uploadTimeCell);
+
+            uploadedFilesTableBody.appendChild(row);
+        }
+
+        //切换处理模式，纯文本检索或文件检索
+        document.getElementById('processMode').addEventListener('change', function() {
+            
+            var inputAccept = document.getElementById('fileInput');
+            if (this.value === 'text') {
+                // 当选择了纯文字检索时
+                inputAccept.setAttribute('accept', '.txt,.pdf,.ppt,.docx,.md');
+            } else if (this.value === 'textImg') {
+                // 当选择了文字+图片检索时
+                inputAccept.setAttribute('accept', '.txt,.pdf,.ppt,.docx,.md,.png,.jpg');
+            }
+            
+        });
+        // 切换上传模式
+        document.querySelectorAll('input[name="uploadType"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                fileInput.value = '';
+                if (e.target.value === 'folder') {
+                    fileInput.multiple = false;
+                    fileInput.setAttribute('webkitdirectory', '');
+                } else {
+                    fileInput.multiple = true;
+                    fileInput.removeAttribute('webkitdirectory');
+                }
+            });
+        });
+
+        // 处理表单提交
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            statusDiv.textContent = '上传中...';
+            statusDiv.className = '';
+
+            try {
+                const formData = new FormData();
+                
+                // 添加文件
+                for (const file of fileInput.files) {
+                    formData.append('files', file, file.webkitRelativePath || file.name);
+                }
+
+                // 添加上传类型
+                formData.append('uploadType', 
+                    document.querySelector('input[name="uploadType"]:checked').value);
+                formData.append('knowledge_base_name', knowledgeBaseName.value);
+                statusDiv.innerHTML = '<i class="fas fa-sync fa-spin"></i>上传中...';
+                const response = await fetch('http://127.0.0.1:5000/api/vrv-rag/docs', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP错误! 状态码: ${response.status}`);
+                }
+        
+                const result = await response.json();
+                statusDiv.innerHTML = '';
+                statusDiv.textContent = result.message || '上传成功！';
+                // 上传成功后
+                localStorage.setItem('uploadStatus', JSON.stringify({
+                    success: true,
+                    message: `成功上传 ${result.data.saved_files.length} 个文件`,
+                    files: result.data.saved_files
+                }));
+                
+                
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    const file = fileInput.files[i];
+                    addUploadedFileToTable(file.name, (file.size / 1024).toFixed(2), new Date().toLocaleString());
+                }
+                // 自动关闭窗口（或提示用户手动关闭）
+                //setTimeout(() => {
+                //    window.close();
+                //}, 1000);
+            } catch (error) {
+                 // 上传失败处理
+                 localStorage.setItem('uploadStatus', JSON.stringify({
+                    success: false,
+                    message: `上传失败: ${error.message}`
+                }));
+                // 保留窗口显示错误
+                statusDiv.className = 'error';
+                statusDiv.textContent = `上传失败: ${error.message}`;
+            }finally {
+                knowledgeBaseNextPage.disabled = false;
+            }
+        });
+        // 监听窗口关闭事件
+        window.addEventListener('beforeunload', () => {
+            if (!localStorage.getItem('uploadStatus')) {
+                localStorage.setItem('uploadStatus', JSON.stringify({
+                    success: false,
+                    message: '用户取消了上传'
+                }));
+            }
+        });
+    </script>
+</body>
+</html>

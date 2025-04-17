@@ -1,0 +1,271 @@
+<html>
+    <head>
+        <!-- 引入本地 Font Awesome 图标库 -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <style>
+            body{
+                overflow-x: hidden;
+            }
+            .dbContainer{
+                display: grid;
+                grid-template-rows: auto 1fr auto; /* 上部、中部(main)、下部 */
+            }
+            .main {
+                display: grid;
+                grid-template-columns: 40% 60%;
+                font-size: 12px;
+                width:100%;
+            }
+            .left {
+                display: grid;
+                grid-template-rows: 90% 10%;
+                border-right: 1px solid #ccc;
+            }
+
+            .top{
+                text-align: left;
+                margin-left: 0px;
+            }
+            .bottom {
+                margin-right: 10%;
+                text-align: right;
+            }
+
+            .right {
+                right: 100%;
+                height: 100%;
+                padding-left:50px;
+            }
+            
+            #dataConn , #databaseList{
+                margin-bottom: 20px;
+            }
+
+            #dataConn label {
+                margin-bottom: 5px;
+            }
+
+            #dataConn input, #dataConn select {
+                margin-bottom: 10px;
+                padding: 5px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+
+            #databaseList {
+                border-radius: 4px;
+                padding: 5px;
+                height: 100%;
+            }
+
+            #databaseList table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            #databaseList th, #databaseList td {
+                padding: 8px;
+                border: 1px solid #ddd;
+                font-size: 12px;
+            }
+
+            #databaseList th {
+                background-color: #f2f2f2;
+            }
+
+            #databaseList button {
+                padding: 5px 10px;
+                background-color: #dc3545;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+            #databaseList button:hover {
+                background-color: #a71d2a;
+            }
+        </style>
+    </head>
+<body>
+    <div class="dbContainer">
+        <div style="text-align: center;">
+            <img src="{{ url_for('static', filename='step1.png') }}"></img>
+        </div>
+        <div class="main" id="dataConn">
+            <div class="left">
+                <div class="top">
+                    <form id="connectDBForm">
+                        <p style="font-weight: bold;">数据库连接配置</p>
+                        <label for="knowledgeBaseName">知识库名称: </label><input type="text" id="knowledgeBaseName" name="knowledgeBaseName" placeholder="请输入知识库名称"><br>
+                        <label for="knowledgeBaseDesc">知识库描述: </label><input type="textarea" id="knowledgeBaseDesc" name="knowledgeBaseDesc" placeholder="请输入知识库描述"><br>
+                        <label for="dbName">数据库名称: </label><input type="text" id="dbName" name="dbName" placeholder="请输入数据库名称"><br>
+                        <label for="dbType">数据库软件：</label>
+                        <select id="dbType" name="dbType">
+                            <option value="Postgres">Postgres</option>
+                            <option value="SQL Server">MongoDB</option>
+                            <option value="MySQL">MySQL</option>
+                        </select><br>
+                        <label for="dbUrl">连接地址：</label>
+                        <input type="text" id="dbUrl" name="dbUrl"value="localhost"><br>
+                        <label for="dbPort">端口号：</label>
+                        <input type="text" id="dbPort" name="dbPort" value="5432"><br>
+                        <label for="dbUser">用户名：</label>
+                        <input type="text" id="dbUser" name="dbUser" placeholder="请输入用户名"><br>
+                        <label for="dbPassword">密码：</label>
+                        <input type="password" id="dbPassword" name="dbPassword" placeholder="请输入密码"><br>
+                        <button id="connectButton" type="submit">连接</button>
+                    </form>
+                </div>
+            </div>
+            <div class="right">
+                <div id="databaseList">
+                    <p style="font-weight:bold;">数据库列表<p>
+                    <table id="databaseTable">
+                        <thead>
+                            <tr>
+                                <th>数据库软件</th>
+                                <th>数据库名</th>
+                                <th>表名</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div id="status"></div>
+        <div style="text-align: center;margin-top:20px;">
+            <button id="knowledgeBaseNextPage" onclick="gotoDatabase()" style="right:20%">下一步</button>
+        </div>
+    </div>
+    <script>
+        const form = document.getElementById('connectDBForm');
+        const connectBtn = document.getElementById('connectButton');
+        const statusDiv = document.getElementById('status');
+        statusDiv.style.fontSize = '12px';
+        const nextBtn = document.getElementById('knowledgeBaseNextPage');
+        nextBtn.disabled = true;
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const knowledgeBaseName = document.getElementById('knowledgeBaseName').value;
+            const knowledgeBaseDesc = document.getElementById('knowledgeBaseDesc').value;
+            const dbName = document.getElementById('dbName').value;
+            const dbType = document.getElementById('dbType').value;
+            const dbUrl = document.getElementById('dbUrl').value;
+            const dbPort = document.getElementById('dbPort').value;
+            const dbUser = document.getElementById('dbUser').value;
+            const dbPassword = document.getElementById('dbPassword').value;
+
+            if (!knowledgeBaseName || !knowledgeBaseDesc || !dbType || !dbUrl || !dbPort || !dbUser || !dbPassword) {
+                statusDiv.style.color = 'red';
+                statusDiv.style.fontSize = '12px';
+                statusDiv.innerHTML = '请填写必填的所有字段(除数据库名称外,都是必填字段)！';
+                return;
+            }
+            const formData = new FormData(event.target);
+            const jsonData = {};
+
+            for (const [key, value] of formData.entries()) {
+                jsonData[key] = value;
+            }
+            //console.log("params:",JSON.stringify(jsonData));
+            localStorage.removeItem('dbInfo');
+            localStorage.setItem('dbInfo', JSON.stringify(jsonData));
+            
+            fetch('http://127.0.0.1:5000/api/vrv-rag/connect-db', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(jsonData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.code === 0){//连接数据库成功的正常返回
+                    statusDiv.style.color = 'black';
+                    statusDiv.innerHTML = '数据库连接成功！右侧显示数据库列表，请选择某一个数据库下面的一张或多张表后，进入下一步。';
+                    databases = [];
+                    //console.log('code:',data.code)
+                    //console.log('databases:',JSON.stringify(data.databases))
+
+                    localStorage.removeItem('databases');
+                    localStorage.setItem('databaseInfo',JSON.stringify(data.databases));
+                    
+                    data.databases.forEach(element => {
+                        const newDatabase = {
+                        id: databases.length + 1,
+                        name: element.database,
+                        type: dbType,
+                        url: dbUrl,
+                        port: dbPort,
+                        user: dbUser,
+                        password: dbPassword,
+                        tables: element.tables
+                    };
+
+                    databases.push(newDatabase);
+                    });
+                    renderDatabaseList();
+                    nextBtn.disabled = false;
+                }else{
+                    statusDiv.style.color = 'red';
+                    statusDiv.innerHTML = '数据库连接失败！请检查填写的内容是否正确。';
+                    databases = [];
+                    renderDatabaseList();
+                }
+                
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                statusDiv.style.color = 'red';
+                statusDiv.innerHTML = '发生错误:' + error;
+            })
+            
+        });
+
+        function gotoDatabase() {
+            const selectElements = document.querySelectorAll('[id^="dbTables"]');
+            var selectedCount = 0;
+            var selectedItems = []
+            selectElements.forEach(selectElement => {
+                const selectedOptions = Array.from(selectElement.selectedOptions); 
+                selectedCount += selectedOptions.length;
+                selectedOptions.forEach(option => {
+                    selectedItems.push({"database":option.parentElement.id,"table":option.value})
+                })
+            })
+            localStorage.removeItem('selectedItems');
+            localStorage.setItem('selectedItems', JSON.stringify(groupByDatabase(selectedItems)));
+            //console.log('selectedItems:', localStorage.getItem('selectedItems'));
+            if (selectedCount === 0) {
+                statusDiv.style.color = 'red';
+                statusDiv.style.fontSize = '12px';
+                statusDiv.innerHTML = '请选择一个或多个表，选定数据后才能进入下一步！';
+            } else {
+                // 向父窗口发送消息
+                window.parent.postMessage({
+                    action: 'gotoDatabaseConfig',
+                    url: "{{ url_for('database') }}"
+                }, 'http://127.0.0.1:5000'); // 替换为正确的域名
+
+            }
+        }
+        function groupByDatabase(jsonArray) {
+            return jsonArray.reduce((accumulator, current) => {
+                const { database, table } = current;
+                const existing = accumulator.find(item => item.database === database);
+                if (existing) {
+                    existing.tables.push(table);
+                } else {
+                    accumulator.push({ database, tables: [table] });
+                }
+                return accumulator;
+            }, []);
+        }
+    </script>
+    <script src="{{ url_for('static', filename='connectDB.js') }}"></script>
+</body>
+</html>

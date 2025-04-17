@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>知识库配置页面</title>
+    <!-- 引入本地 Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='knowledgeconfig.css') }}">
+    <style>
+        body {
+            overflow-x: hidden;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        // 标签切换功能
+       function switchTab(evt, tabName) {
+           // 切换按钮状态
+           document.querySelectorAll('.kb-config-tab-btn').forEach(btn => {
+               btn.classList.remove('active');
+           });
+           evt.currentTarget.classList.add('active');
+
+           // 切换内容显示
+           document.querySelectorAll('.kb-config-tab-content').forEach(content => {
+               content.style.display = 'none';
+           });
+           document.getElementById(tabName).style.display = 'block';
+       }
+   </script>
+   <div class="kb-config-container">
+       <!-- 标签导航 -->
+       <div class="kb-config-tab-nav">
+           <button class="kb-config-tab-btn active" onclick="switchTab(event, 'docs')">非结构化数据</button>
+           <button class="kb-config-tab-btn" onclick="switchTab(event, 'database')">企业知识图谱库</button>
+           <button class="kb-config-tab-btn" onclick="switchTab(event, 'external')">更多</button>
+       </div>
+
+       <!-- 文档资料 -->
+       <div id="docs" class="kb-config-tab-content" style="display: block;">
+            <iframe 
+                id="kbDocsPage" 
+                style="width: 100%; height: 600px; border: 0px solid #ccc;"
+                src="{{ url_for('uploadFiles', whoInvoked='knowledgeGraphConfig') }}">
+            </iframe>
+       </div>
+       <!--企业数据库 -->
+       <div id="database" class="kb-config-tab-content" style="display: none;">
+        <p style="font-size:13px;font-weight: bold;margin-left:5px;">提供连接外部知识图谱库如Neo4j, Nebula,FalkerDB等 敬请期待 coming soon...</p>
+       </div>
+       <!--外部资源 -->
+       <div id="external" class="kb-config-tab-content" style="display: none;">
+            <p style="font-size:12px;margin-left:5px;overflow-wrap: break-word;word-wrap: break-word;white-space: pre-wrap;">
+                LlamaHub 是一个开源项目，汇集了社区贡献的数据加载器、工具和Llama包。它旨在简化大型语言模型（LLMs）与多样化知识源的连接过程，让LLMs能够轻松连接到各种知识源,LlamaHub 还提供了丰富的API，可以方便地查询和操作知识图谱数据。通过LlamaHub平台,VRV-RAG可以支持更多的知识图谱数据库,包括Neo4j,JanusGraph,Jana, OrientDB,TigerGraph和Amazon Neptune等。
+            </p>
+            <a style="font-size:13px;font-weight: bold;margin-left:5px;" href="https://llamahub.ai/" target="_blank">Llama Hub官网</a><br><br>
+            <div style="text-align: center;"><img src="{{ url_for('static', filename='LlamaHubGraphStore.png') }}" alt="LlamaHub官网截图" style="width: 85%;"></div>
+        </div>
+   </div>
+   <br>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const statusDiv = document.getElementById('status');
+        const knowledgeBaseDesc = localStorage.getItem('knowledgeBaseDesc');
+        const knowledgeBaseName = localStorage.getItem('knowledgeBaseName');
+        
+        //进入默认是docs
+        document.querySelectorAll('.kb-config-tab-btn').forEach(btn => {
+               btn.classList.remove('active');
+        });
+        document.getElementById('kbDocsPage').src = "{{ url_for('uploadFiles', whoInvoked='knowledgeGraphConfig') }}";
+
+        // 监听来自 iframe 的消息
+        window.addEventListener('message', function(event) {
+            // 检查消息来源是否可信
+            if (event.origin === 'http://127.0.0.1:5000') { // 替换为正确的域名
+                // 获取消息数据
+                var data = event.data;
+                if (data.action === 'gotoRagSettings') {
+                    // 修改 iframe 的 src 属性
+                    document.getElementById('kbDocsPage').src = data.url;
+                }
+                if (data.action === 'gotoResListPage') {
+                    // 修改 iframe 的 src 属性
+                    document.getElementById('kbDocsPage').src = data.url;
+                }
+                if( data.action === 'gotoUploadFilesPage') {
+                    document.getElementById('kbDocsPage').src = data.url;
+                }
+                // 监听来自b.html的消息
+                if (event.data?.type === 'CLOSE_PARENT') {
+                    // 转发消息到main.html
+                    //console.log('event.data.payload:',event.data.payload)
+                    window.parent.handleDataUpdate(event.data.payload);
+                }
+                if(data.action === 'gotoDatabaseConfig'){
+                    document.getElementById('kbDatabasePage').src = data.url;
+                }
+                if(data.action === 'gotoConnectDBPage'){
+                    document.getElementById('kbDatabasePage').src = data.url;
+                }
+                if (data.action === 'gotoDBResListPage') {
+                    document.getElementById('kbDatabasePage').src = data.url;
+                }
+            }
+        });
+        
+        function previewInfo(){
+
+        }
+    </script>
+</body>
+</html>

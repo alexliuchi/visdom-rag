@@ -1,0 +1,236 @@
+<html>
+    <head>
+        <!-- 引入本地 Font Awesome 图标库 -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='database.css') }}">
+        <style>
+            body{
+                overflow-x: hidden;
+            }
+            #databaseMgr {
+               font-size:12px;
+               width: 95%;
+            }
+        </style>
+    </head>
+<body>
+    <script src="{{ url_for('static', filename='knowledgelib.js') }}"></script>
+    <div style="text-align: center;">
+        <img src="{{ url_for('static', filename='step1.png') }}"></img>
+    </div>
+    <div id="extraResources" style="width: 90%;padding:5px;">
+        <div class="panel">
+            <label for="knowledgeBaseName" style="font-size:12px;">知识库名称: </label><input type="text" id="knowledgeBaseName" name="knowledgeBaseName" placeholder="请输入知识库名称"><br><br>
+            <label for="knowledgeBaseDesc" style="font-size:12px;">知识库描述: </label><input type="textarea" id="knowledgeBaseDesc" name="knowledgeBaseDesc" placeholder="请输入知识库描述"><br>
+            <p style="font-size:12px;font-weight: bold;"></p>
+            <details open>
+            <summary style="font-size:13px;font-weight: bold;">外部网页数据</summary>
+                <div style="border:1px solid #0066CC; margin-left:5px; border-radius: 4px;">
+                    <form id="webPageULRs">
+                        <!-- 填写Web网页url地址 -->
+                        <div class="schema-panel" style="padding-left: 5px; padding-bottom: 5px;">
+                            <p style="font-size:12px;font-weight: bold;">网页外部配置</p>
+                            <div id="extraWebPageURLs"style="padding: 5px; background: #f8f9fa; margin: 4px; border-radius: 4px;">
+                                <input type="text" id="webPageURL-0" style="width:90%; padding:8px;box-sizing:border-box;" placeholder="请输入一个有效的网页地址，网页内容包含您想要的最新信息作为补充数据资料"></input><button onclick="removeItem()">删除</button> 
+                            </div>
+                            <p id="statusInfo" style="font-size:12px;color: red; padding-left: 5px;margin-top: 5px;"></p>
+                            <button id="addOneItemBtn" class="btn btn-primary" onclick="addOneItem()">+新增网址</button>
+                        </div>
+                        <!-- 查询问题 -->
+                        <div class="schema-panel" style="padding-left: 5px; padding-bottom: 5px;">
+                            <p style="font-size:12px;font-weight: bold;">查询问题</p>
+                            <div style="padding: 2px; background: #f8f9fa; margin: 4px; border-radius: 4px;">
+                                <textarea id="userQuestion" style="width:100%; padding:8px;box-sizing:border-box;" placeholder="请输入一个问题作为查询所选数据表数据作为知识库信息抽查预览如，概括第一个网页的主要内容"></textarea>
+                            </div>
+                        </div>
+                        <!-- 预览 -->
+                        <div class="preview-panel" style="padding-left: 5px; padding-bottom: 5px;">
+                            <p id="previewInfoStatus" style="font-size:12px;font-weight: bold;">预览信息</p>
+                            <pre id="preViewInfo" style="max-width: 100%;word-wrap: break-word; white-space: pre-wrap;background: #f8f9fa; border-radius: 4px;display:none;">
+                            </pre>
+                            <button id="previewBtn" class="btn btn-primary" type="submit">运行预览</button>
+                        </div>
+                    </form>
+                </div>
+            </details>
+        </div>
+        <div class="panel">
+            <p style="font-size:12px;font-weight: bold;"></p>
+            <details>
+            <summary style="font-size:13px;font-weight: bold;">外部知识库</summary>
+                <div style="border:1px solid #0066CC; margin-left:5px; border-radius: 4px;">
+                    <p style="font-size:12px;font-weight: bold;">连接外部知识库功能开发中 敬请期待coming soon...</p>
+                    <form id="knowledgeBaseAddress">
+                        <!-- 填写Web网页url地址 -->
+                        <div class="schema-panel" style="padding-left: 5px; padding-bottom: 5px;">
+                            <p style="font-size:12px;font-weight: bold;">外部知识库配置</p>
+                            <div id="extraKBs"style="padding: 5px; background: #f8f9fa; margin: 4px; border-radius: 4px;">
+                                <input type="text" id="webPageURL-0" style="width:100%; padding:8px;box-sizing:border-box;" placeholder="请在此配置连接外部知识库，这些知识库包含您想要的最新信息作为补充数据资料"></input> 
+                            </div>
+                        </div>
+                        <!-- 查询问题 -->
+                        <div class="schema-panel" style="padding-left: 5px; padding-bottom: 5px;">
+                            <p style="font-size:12px;font-weight: bold;">查询问题</p>
+                            <div style="padding: 2px; background: #f8f9fa; margin: 4px; border-radius: 4px;">
+                                <textarea id="userQuestion1" style="width:100%; padding:8px;box-sizing:border-box;" placeholder="请输入一个问题作为查询所选数据表数据作为知识库信息抽查预览如，概括该知识库的主要内容"></textarea>
+                            </div>
+                        </div>
+                        <!-- 预览 -->
+                        <div class="preview-panel" style="padding-left: 5px; padding-bottom: 5px;">
+                            <p id="previewKBInfoStatus" style="font-size:12px;font-weight: bold;">预览信息</p>
+                            <pre id="preKBViewInfo" style="max-width: 100%;word-wrap: break-word; white-space: pre-wrap;background: #f8f9fa; border-radius: 4px;display:none;">
+                            </pre>
+                            <button id="previewKBBtn" class="btn btn-primary" type="submit">运行预览</button>
+                        </div>
+                    </form>
+                </div>
+            </details>
+        </div>
+        <div class="panel">
+            <p style="font-size:12px;font-weight: bold;"></p>
+            <details>
+            <summary style="font-size:13px;font-weight: bold;">联网检索</summary>
+                <div style="border:1px solid #0066CC; margin-left:5px; border-radius: 4px;">
+                    <p style="font-size:12px;font-weight: bold;">联网检索功能开发中 敬请期待coming soon...</p>
+                    <p style="font-size:12px;padding-left: 5px; padding-bottom: 5px;">配置引擎，开启联网检索功能<br><br>
+                    
+                    <select id="searchEngine" style="padding-left: 5px; padding-bottom: 5px;">
+                        <option>DuckDuckGo</option>
+                        <option>搜   狗</option>
+                        <option>百   度</option>
+                        <option>360搜索</option>
+                        <option>Elasticsearch</option>
+                        <option>MindSearch</option>
+                    </select>
+                    <br>
+                    <div style="text-align: center;">
+                        <img src="{{ url_for('static', filename='searchEngine.png') }}"></img>
+                    </div>
+                </div>
+            </details>
+        </div>
+        <div style="margin-top: 15px;text-align: center;">
+            <button id="knowledgeBaseNextPage" onclick="gotoDBResListPage()" style="right:20%">下一步</button>
+        </div>
+    </div>
+    <script>
+        const form = document.getElementById('webPageULRs');
+        const nextPageBtn = document.getElementById('knowledgeBaseNextPage');
+        nextPageBtn.disabled = true;
+        
+        function addOneItem(){
+            var extraWebPageURLs = document.getElementById('extraWebPageURLs');
+            const newItem = document.createElement('input');
+            newItem.type = "text";
+            newItem.id = "webPageURL-" + (extraWebPageURLs.children.length - 1);
+            newItem.style.width = "90%";
+            newItem.style.padding = "8px";
+            newItem.style.boxSizing = "border-box";
+            newItem.placeholder = "请输入一个有效的网页地址，网页内容包含您想要的最新信息作为补充数据资料";
+            const btn = document.createElement('button');
+            btn.innerHTML = "删除";
+            btn.onclick = function() {
+                extraWebPageURLs.removeChild(newItem);
+                extraWebPageURLs.removeChild(btn);
+            };
+            extraWebPageURLs.appendChild(newItem);
+            extraWebPageURLs.appendChild(btn);
+        }
+
+        function removeItem(){
+            var extraWebPageURLs = document.getElementById('extraWebPageURLs');
+            if (extraWebPageURLs.children.length > 1) {
+                extraWebPageURLs.removeChild(extraWebPageURLs.lastChild);
+            }
+        }
+        
+        function isValidHttpUrl(urlString) {
+            console.log('urlString:', urlString)
+            try {
+                const url = new URL(urlString);
+                return (url.protocol === 'http:' || url.protocol === 'https:') && url.host !== '';
+            } catch (err) {
+                return false;
+            }
+        }
+        const firstURLInput = document.getElementById('webPageURL-0');
+        firstURLInput.addEventListener('input', (e) => {
+            const inputtingUrl = e.target.value.toLowerCase();
+            if (!isValidHttpUrl(urlString)) {
+                document.getElementById('statusInfo').innerHTML = '请输入一个有效的网页地址';
+            }else{
+                document.getElementById('statusInfo').innerHTML = '';
+            }
+        });
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const webPageUrls = document.querySelectorAll('[id^="webPageURL-"]');
+            for( i = 0; i < webPageUrls.length; i++) {
+                const urlString = webPageUrls[0].value;
+                if (!isValidHttpUrl(urlString)) {
+                    document.getElementById('statusInfo').innerHTML = '请输入一个有效的网页地址';
+                    return;
+            }
+            isValidHttpUrl(urlString)
+            const knowledgeBaseName = document.getElementById('knowledgeBaseName').value;
+            const knowledgeBaseDesc = document.getElementById('knowledgeBaseDesc').value;
+            const webPageUrlValues = Array.from(webPageUrls).map(webPageUrl => webPageUrl.value);
+            const userQuestion = document.getElementById('userQuestion');
+            const extraWebPageData = {
+                "user_query": userQuestion.value,
+                "extra_web_page_urls": webPageUrlValues,
+                "llm_model_name":  localStorage.getItem('currentSelectedModel'),
+                "knowledgeBaseName": knowledgeBaseName,
+                "knowledgeBaseDesc": knowledgeBaseDesc,
+                "llm_model_temperature": 0.2
+            }
+           
+            try {
+                const previewInfoStatus = document.getElementById('previewInfoStatus');
+                previewInfoStatus.innerHTML = '预览信息'+'<i class="fas fa-sync fa-spin"></i>';
+                const response = await fetch('http://127.0.0.1:5000/api/vrv-rag/extra/webpages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(extraWebPageData)
+                })
+
+                if (!response.ok) {
+                    throw new Error(`HTTP错误! 状态码: ${response.status}`);
+                }
+            
+               const result = await response.json();
+
+               const preViewInfo = document.getElementById('preViewInfo');
+               preViewInfo.style.display = 'block';
+               preViewInfo.textContent = result.response;
+            } catch (error) {
+                preViewInfo.style.display = 'block';
+                preViewInfo.textContent = error.message;
+            }finally{
+                previewInfoStatus.innerHTML = '预览信息';
+                nextPageBtn.isdisabled = false;
+            }
+        }   
+        /**
+            const maxIndex = knowledgeLibList.length;
+            knowledgeLibList.push({ id: maxIndex + 1, title: dbInfo.knowledgeBaseName, description: "","description_1":  dbInfo.knowledgeBaseDesc,
+                        config: {
+                                "docs": {},
+                                "database":JSON.stringify(databaseQueryData),
+                }
+            });
+            localStorage.removeItem("currentknowledgebase");
+            localStorage.setItem("currentknowledgebase", JSON.stringify({ id: maxIndex + 1, title: dbInfo.knowledgeBaseName, description: "","description_1":  dbInfo.knowledgeBaseDesc,
+                        config: {
+                                "docs": {},
+                                "database":JSON.stringify(databaseQueryData),
+                }
+            }));
+        **/
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,982 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实境智慧智能增强检索系统</title>
+    <!-- 引入本地 Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='documents.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='navigation.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='modelmgr.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='menu.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='centermenu.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            /*height: 100vh;*/
+            height: 100%; /* 确保父容器的高度占满整个页面 */
+            background-color: white;/* 背景颜色 #f4f4f4; #e9ecef; #f9f9f9;*/
+            overflow: hidden; /* 防止页面滚动 */
+            font-size: 16px;
+        }
+        html {
+            height: 100%; /* 确保父容器的高度占满整个页面 */
+            margin: 0;
+            padding: 0;
+        }
+        .main-frame {
+            border: none;
+            margin: 0;
+            padding: 0;
+            width:100%; 
+            height:100%;
+            background-color: white
+        }
+    </style>
+</head>
+<body>
+    <script src="{{ url_for('static', filename='navigaton.js') }}"></script>
+    <script src="{{ url_for('static', filename='uploadfiles.js') }}"></script>
+    <script src="{{ url_for('static', filename='modelmgr.js') }}"></script>
+    <script src="{{ url_for('static', filename='knowledgelib.js') }}"></script>
+    <script src="{{ url_for('static', filename='settings.js') }}"></script>
+    <script src="{{ url_for('static', filename='common.js') }}"></script>
+    
+    <div id="sidebar">
+        <div id="sidebar-top">
+            <img id='logo-img' src="" style="height:60px;width:100px;margin-left: 1px;">
+            <br>
+            <br>
+            <br>
+            <br>
+            <ul style="background-color: white;height:35px;padding-top: 5px;margin-left: 5px;margin-right: 15px;color:blue">
+                <button id="create-new-session" style="font-weight: bold;background-color:white;color:#0066CC;border: none;cursor: pointer;">
+                    <div class="left-sidebar-toggle">  
+                        <i class="far fa-comment-dots main-icon"></i>
+                        <i class="far fa-plus corner-plus" style="font-size:8px"></i>
+                    </div>
+                    &nbsp;&nbsp;新会话
+                </button>
+            </ul>
+            <br>
+            <details>
+                <summary id="left-sidebar-summary" style="font-size:14px;">
+                    <i class="fa fa-book-reader left-icon"></i> <!-- 左侧图标 -->
+                    &nbsp;&nbsp;&nbsp;&nbsp;历史会话
+                    <i id='left-sidebar-summary-icon' class="fas fa-angle-down right-icon"></i>
+                </summary>
+                <ul id="left-sidebar-top-menu">
+                    <li data-index="0" style="color:#7F7F7F;" title="深度学习简介">深度学习简介<i id='session-icon' class="fas fa-ellipsis-h right-icon"></i></li>
+                    <li data-index="1" style="color:#7F7F7F;" title="深度求索 V.S OpenAI谁的大模型更厉害">深度求索比OpenAI谁厉害...</li>
+                    <li data-index="1" style="color:#7F7F7F;" title="数据质量和标注问题具体说明">数据质量和标注问题具体说...</li>
+                    <li data-index="1" style="color:#7F7F7F;" title="加强模型的可解释性和安全性">加强模型的可解释性和安全...</li>
+                    <li data-index="100" style="color:#7F7F7F;" title="点击跳转查看更多">查看更多>></li>
+                </ul>
+            </details>
+        </div>
+
+        <!--左侧下方菜单-->
+        <div id="sidebar-bottom" style="padding: 5px;">
+            <ul id="left-sidebar-bottom-menu">
+                <hr>
+                <li id="model-lib-mgt">
+                    <i class="fa-solid fa-database left-icon"></i>
+                    &nbsp;&nbsp;&nbsp;&nbsp;模型库管理
+                </li>
+                <li id="knowlege-lib-mgt">
+                    <i class="fas fa-globe left-icon"></i>
+                    &nbsp;&nbsp;&nbsp;&nbsp;知识库管理
+                </li>
+                <li id="knowlege-lib-mgt">
+                    <i class="fas fa-robot left-icon"></i>
+                    &nbsp;&nbsp;&nbsp;&nbsp;智能体管理
+                </li>
+                <li id="rag-evaluations">
+                    <i class="fas fa-star left-icon"></i>
+                    &nbsp;&nbsp;&nbsp;&nbsp;质量评估
+                </li>
+                <li id="help-doc">
+                    <i class="fas fa-question left-icon"></i>
+                    &nbsp;&nbsp;&nbsp;&nbsp;帮助文档
+                </li>
+                <li id="sys-settings">
+                    <i class="fas fa-cog left-icon"></i>
+                    &nbsp;&nbsp;&nbsp;&nbsp;系统设置
+                </li>
+                <hr>
+                <li id="left-sidebar-bottom-login">
+                    <img id="left-sidebar-bottom-login-icon" src="{{ url_for('static', filename='humanPlus.png') }}" style="width:30px;height:30px" class="left-icon"><!-- 左侧图标 -->
+
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;登录
+                    <!--<i id = "settting-icon" class="fas fa-cog right-icon"></i> -->
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!--主内容区顶部导航栏-->
+    <div id="navigationContainer" style="display: none;">
+            <div id="navigationMenus">
+                <div class="breadcrumb"></div>
+                <div class="menu-container"></div>
+            </div>
+            <div id="navigationTabs">
+                <div class="tabs">
+                    <button class="tab-link active" data-tab="tab1">Tab 1</button>
+                    <button class="tab-link" data-tab="tab2">Tab 2</button>
+                    <button class="tab-link" data-tab="tab3">Tab 3</button>
+                    <button class="tab-link" data-tab="tab4">Tab 4</button>
+                    <button class="tab-link" data-tab="tab5">Tab 5</button>
+                </div>
+                <div class="tab-content active" id="tab1Content"></div>
+                <div class="tab-content" id="tab2Content"></div>
+                <div class="tab-content" id="tab3Content"></div>
+                <div class="tab-content" id="tab4Content"></div>
+                <div class="tab-content" id="tab5Content"></div>
+            </div>
+    </div>
+    <!--主显示区域容器-->
+    <div id="main-content">
+        
+    </div>
+    <!--主显示区IFrame-->
+    <iframe id="mainFrame" class="main-frame" src="{{ url_for('chatbot') }}"></iframe>
+
+    <!--右侧列表展开/隐藏按钮 自定义组合图标 -->
+    <div class="right-sidebar-toggle" id="right-sidebar-toggle">
+        <img id = "right-sidebar-toggle-icon" src="{{ url_for('static', filename='humanPlus.png') }}" style="width:30px;height:30px;">
+    </div>
+    <!-- 左侧列表展开/隐藏按钮 -->
+    <img id="sidebar-toggle" src="{{ url_for('static', filename='togglebutton.svg') }}" style="color:#0066CC;width:30px;height:30px;">
+    
+    <!-- 左侧上方创建新会话按钮 -->
+    <button id="create-new-session-in-main-content">
+        <div class="left-sidebar-toggle">  
+            <i class="far fa-comment-dots main-icon" style="font-size:12px"></i>
+            <i class="far fa-plus corner-plus" style="font-size:8px"></i>
+        </div>
+        &nbsp;&nbsp;新会话
+    </button>
+    <!--模型列表容器-->
+    <div class="llm-list-container" id="llmListContainer"><p>大模型模型列表</p></div>
+    <div class="embed-list-container" id="embedListContainer"><p>嵌入模型列表</p></div>
+    <div class="rerank-list-container" id="rerankListContainer"><p>重排模型列表</p></div>
+    <!--知识库列表容器-->
+    <div class="knowledge-lib-list-container" id="knowledgeLibListContainer"></div>
+    <!-- 登录对话框 -->
+    <div id='login-dialog' class="login-dialog-container">
+        <div class="login-dialog-box">
+            <p style="text-align: center;"><b>登录</b></p>
+            <label for="phone-number">账号:</label>&nbsp;&nbsp;<input type="text" style="width:150px;" id="phone-number" value="vrvisdom"><br><br>
+            <label for="verification-code">密码:</label>&nbsp;&nbsp;<input type="text" style="width:150px;" id="verification-code" value="123456"><br><br>
+            <button id="login-button" style="width:80px;text-align: center;">登录</button>
+        </div>
+    </div>
+     <!-- 上下文菜单 -->
+     <div class="context-menu" id="contextMenu">
+        <ul>
+            <li><i class="fas fa-pencil-alt"></i>&nbsp;&nbsp;重命名</li>
+            <li style="color:red"><i class="fas fa-trash" style="color:red;"></i>&nbsp;&nbsp;删除此会话</li>
+        </ul>
+    </div>
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const newSessionBtninMain = document.getElementById('create-new-session-in-main-content');
+        const mainContent = document.getElementById('main-content');
+        const contentWrapper = document.querySelector('.content-wrapper');
+        const chatbot = document.getElementById('chatbot');
+        const sidebarTopContainer = document.getElementById('sidebar-top');
+        const sidebarBottomContainer = document.getElementById('sidebar-bottom');
+        const sidebarTopItems = document.querySelectorAll('#sidebar-top ul li');
+        const sidebarBottomItems = document.querySelectorAll('#sidebar-bottom ul li');
+        
+        const rightSidebarToggle = document.getElementById('right-sidebar-toggle');
+        const loginDialog = document.getElementById('login-dialog');
+        const overlay = document.getElementById('overlay');
+        const loginButton = document.getElementById('login-button');
+        const sendCodeButton = document.getElementById('send-code-button');
+        const verificationCodeInput = document.getElementById('verification-code');
+        const usernameInput = document.getElementById('phone-number');
+        let infoDialog = document.getElementById('info-dialog');
+
+        //Main Content navigation
+        const breadcrumb = document.querySelector('.breadcrumb');
+        const NavigationTabs = document.querySelectorAll('.tab-link');
+        const tab1 = document.querySelector('[data-tab="tab1"]');
+        const tab2 = document.querySelector('[data-tab="tab2"]');
+		const tab3 = document.querySelector('[data-tab="tab3"]');
+		const tab4 = document.querySelector('[data-tab="tab4"]');
+		const tab5 = document.querySelector('[data-tab="tab5"]');
+        const tabsContent = document.querySelectorAll('.tabs-content');//should be .tab-content
+        const tab1Content = document.getElementById('tab1Content');
+        const tab2Content = document.getElementById('tab2Content');
+        const tab3Content = document.getElementById('tab3Content');
+        const tab4Content = document.getElementById('tab4Content');
+        const tab5Content = document.getElementById('tab5Content');
+        let breadcrumbItems = []
+        let NavigationBreadAndMenuDict = [
+            {"模型库管理": {"Area":"LeftSideBarTop","InitialMethod":"initModelMgrIntoMainContent"}},
+            {"知识库管理": {"Area":"LeftSideBarTop","initialMethod":"initKnowledgeLibMgrIntoMainContent"}},
+            {"质量评估": {"Area":"LeftSideBarTop","initialMethod":""}},
+            {"帮助文档": {"Area":"LeftSideBarTop","initialMethod":""}},
+        ]
+
+        
+        function setMainLayout() {
+            if (detectDevice() === 'mobile') {
+                sidebarToggle.style.left = '0px';
+                rightSidebarToggle.style.top = '10px';
+                
+            } else {
+                sidebarToggle.style.left = '200px';
+                newSessionBtninMain.style.left = '260px';
+                rightSidebarToggle.style.top = '10px';
+            }
+        }
+        setMainLayout();
+        // 窗口大小变化监听
+        window.addEventListener('resize', () => {
+                setMainLayout();
+            });
+        //根据选择的sidebar项，设置sidebarTopContainer的内容
+        function setNagivationInMainContent(navitationItemName) {
+            if(breadcrumbItems.length <= 0) {
+                console.log("breadcrumbItems is empty, no anything to be set to the navigation in main content");
+                return;
+            }
+            const breadcrumb = document.querySelector('.breadcrumb');
+            breadcrumbItems.push(tabName);
+            breadcrumb.innerHTML = breadcrumbItems
+                                    .map((item, index) => `<a onclick="navigateTo(${index})">${item}</a>`)//TODO:Rewrite navigateTo function
+                                    .join(' > ') || '主菜单';
+            console.log(breadcrumb.innerHTML);
+        }
+
+       
+
+        // 页面加载时调用函数
+        getMaxDimensions();
+        // 页面加载时调用检测函数
+        detectDevice();
+
+        // 点击图标切换侧边栏的展开/隐藏
+        sidebarToggle.addEventListener('click', () => {
+                toggleSidebar();
+        });
+        
+        newSessionBtninMain.addEventListener('click', () => {
+            //createNewSession(mainContent);
+            document.getElementById('mainFrame').src = "{{ url_for('newsession') }}";
+        })
+
+        // 点击右侧列表展开/隐藏按钮
+        rightSidebarToggle.addEventListener('click', () => {
+            //createNewSession(mainContent);
+            loginDialog.style.display = 'flex';
+        });
+
+        // 获取所有右侧图标 <i> 元素
+        const rightIcons = document.querySelectorAll(".right-icon");
+
+        // 为每个右侧图标添加点击事件
+        rightIcons.forEach((icon, index) => {
+            icon.addEventListener("click", (event) => {
+                event.stopPropagation(); // 阻止事件冒泡
+                if(index === 0){
+                    console.log(`点击了第 ${index + 1} 个右侧图标`);
+                }else if(index === 1){
+                    console.log(`点击了第 ${index + 1} 个右侧图标`);
+                }
+                
+            });
+        });
+
+        // 监听来自 iframe 的消息
+        window.addEventListener('message', function(event) {
+            // 检查消息来源是否可信
+            if (event.origin === 'http://127.0.0.1:5000') { // 替换为正确的域名
+                // 获取消息数据
+                var data = event.data;
+                if (data.action === 'changeSrc') {
+                    // 修改 iframe 的 src 属性
+                    document.getElementById('mainFrame').src = data.url;
+                }
+                if (event.data?.type === 'DYNAMIC_CONTENT_LOADED') {
+                    console.log('动态元素已显示');
+                }
+            }
+        });
+
+        const summaryIcon = document.getElementById('left-sidebar-summary-icon');
+        const summary = document.getElementById('left-sidebar-summary');
+        summaryIcon.addEventListener('click', () => {
+            if(summaryIcon.className=='fas fa-angle-right right-icon'){
+                summaryIcon.className='fas fa-angle-down right-icon';
+            }else{
+                summaryIcon.className='fas fa-angle-right right-icon';
+            }
+        });
+        summary.addEventListener('click', () => {
+            if(summaryIcon.className=='fas fa-angle-right right-icon'){
+                summaryIcon.className='fas fa-angle-down right-icon';
+            }else{
+                summaryIcon.className='fas fa-angle-right right-icon';
+            }
+        });
+
+        const createNewSessionBtn = document.getElementById('create-new-session');
+        const createNewWorkspaceBtn = document.getElementById('create-knowledge-lib');
+        //启动新会话
+        createNewSessionBtn.addEventListener('click', () => {
+            //createNewSession(mainContent);
+            document.getElementById('mainFrame').src = "{{ url_for('newsession') }}";
+            if (detectDevice() === 'mobile') {
+                toggleSidebar();
+            }
+        });
+        
+        //获取侧边栏顶部菜单项
+        sidebarTopItems.forEach((item, index) => {
+            item.addEventListener('click', () => {
+                document.getElementById('mainFrame').src = "{{ url_for('historysessions') }}?index=" + index;
+                
+                //最后一个历史会话项是更多，跳转到历史会话查询页面
+                if (index === (sidebarTopItems.length - 1)){
+                    document.getElementById('mainFrame').src = "{{ url_for('historysessionlist') }}";
+                }
+                if (detectDevice() === 'mobile') {
+                    toggleSidebar();
+                }
+            });
+            
+        });
+
+        let navigationContainer = document.getElementById('navigationContainer');
+        const llmListContainer = document.querySelector('.llm-list-container');
+        const rerankListContainer = document.querySelector('.rerank-list-container');
+        const embedListContainer = document.querySelector('.embed-list-container');
+        initModelList(llmListContainer, modelListDataSet.llm, "llm-list-", llmClickFunction);
+        initModelList(rerankListContainer, modelListDataSet.rerank, "rerank-list-", rerankClickFunction);
+        initModelList(embedListContainer, modelListDataSet.embed, "embed-list-", embedClickFunction);
+
+        function llmClickFunction() {
+            console.log('llmClickFunction is invoked');
+            openConfigModal()
+        }
+        function embedClickFunction() {
+            console.log('embedClickFunction is invoked');
+        }
+        function rerankClickFunction() {
+            console.log('rerankClickFunction is invoked');
+        }
+
+        
+
+        /**--左侧底部菜单项的click事件处理--**/
+        sidebarBottomItems.forEach((item, index) => {
+            item.addEventListener('click', () => {
+                console.log('item name:', item.textContent.trim());
+                console.log('item index:', index);
+                if (index === 100){
+                     // 点击第一个菜单项，显示带图片和聊天窗口的内容
+                     mainContent.innerHTML = ``;
+                    document.getElementById('logo-img-home').src = "img/new_logo.png";
+                }else if(index === 0){
+                    //模型库管理 
+                    //initModelMgrIntoMainContent();
+                    document.getElementById('mainFrame').src = "{{ url_for('modelsMgr') }}";
+                }else if (index === 1){
+                    //切换到知识库管理
+                    document.getElementById('mainFrame').src = "{{ url_for('knowledgeBaseMgr') }}";
+                }else if (index === 2){//智能体管理   
+                    document.getElementById('mainFrame').src = "{{ url_for('agentMgr') }}";
+                }else if (index === 3){//质量评估
+                    document.getElementById('mainFrame').src = "{{ url_for('evaluations') }}";
+                }else if (index === 4){//帮助文档
+                    document.getElementById('mainFrame').src = "{{ url_for('helpDoc') }}";
+                }else if (index === 5){//系统设置
+                    document.getElementById('mainFrame').src = "{{ url_for('sysSettings') }}";
+                }
+                // 点击最后一个菜单项，显示登录对话框
+                if (index === (sidebarBottomItems.length - 1)){
+                    loginDialog.style.display = 'flex';
+                    return;
+                }
+                if (detectDevice() === 'mobile') {
+                    toggleSidebar();
+                }
+            });
+        });
+
+
+        //清空主区域内容，为装载展示下个页面做准备
+        function clearMainContent(){
+            const mainContent = document.getElementById('main-content');
+            const navigationTabs =  document.querySelectorAll('.tab-link');
+            
+            navigationTabs.forEach(tab => {
+                tab.textContent = ""
+                //tab.style.display = 'hidden';
+                console.log('set tab:'+tab.id+' value to empty');
+            });
+            const tabsContent =  document.querySelectorAll('.tab-content');
+            tabsContent.forEach(tabContent => {
+                tabContent.textContent = "";
+                console.log('set tab'+tabContent.id+' value to empty');
+            });
+            const knowledgeLib_ =  document.getElementById('knowledgeLibListContainer');
+            //const modelListContainer = document.querySelector('.model-list-container');
+            const llmListContainer = document.querySelector('.llm-list-container');
+            const rerankListContainer = document.querySelector('.rerank-list-container');
+            const embeddingListContainer = document.querySelector('.embedding-list-container');
+
+            const databaseMgr = document.getElementById('databaseMgr');
+            if(knowledgeLib_){
+                knowledgeLib_.style.display = 'none';
+                console.log('knowledgeLib_.style.display = none');
+            }else{
+                console.log('knowledgeLib_ is null');
+            }
+            if (llmListContainer) {
+                llmListContainer.style.display = 'none';
+                console.log('llmListContainer.style.display =  none');
+            }else{
+                console.log('llmListContainer is null');
+            }
+            if (embedListContainer) {
+                embedListContainer.style.display = 'none';
+                console.log('embedListContainer.style.display =  none');
+            }else{
+                console.log('llmListContainer is null');
+            }
+            if (rerankListContainer) {
+                rerankListContainer.style.display = 'none';
+                console.log('rerankListContainer.style.display =  none');
+            }else{
+                console.log('rerankListContainer is null');
+            }
+            const uploadfilesContainer = document.getElementById('uploadfiles-container');
+            if (uploadfilesContainer) {
+                uploadfilesContainer.style.display = 'none';
+                console.log('uploadfilesContainer.style.display = none')
+                }else{console.log('uploadfilesContainer is null')}
+            if (databaseMgr) {
+                databaseMgr.style.display = 'none';
+                console.log('databaseMgr.style.display = none')
+            }else{console.log('databaseMgr is null')}
+
+            //TODO: all others
+
+            mainContent.innerHTML = ``;
+            console.log('mainContent.innerHTML = empty');
+        }
+
+        function initKnowledgeLibMgrIntoMainContent(){
+            clearMainContent();
+            navigationContainer.style.display = 'block';
+            knowledgeLib_.style.display = 'flex';
+            tab1Content.display = 'block';
+            tab1Content.appendChild(knowledgeLib_);
+            mainContent.appendChild(navigationContainer);
+            //const childDivs = [knowledgeLib_]
+            setChildWidth(tab1Content, knowledgeLib_)
+
+        }
+
+        function initModelMgrIntoMainContent(){
+            clearMainContent();
+            llmListContainer.style.display = 'flex';
+            embedListContainer.style.display = 'flex';
+            rerankListContainer.style.display = 'flex';
+            tab1Content.appendChild(llmListContainer);
+            tab1Content.appendChild(embedListContainer);
+            tab1Content.appendChild(rerankListContainer);
+            tab1Content.display = 'block';
+            navigationContainer.style.display = 'block';
+            console.log("initModelMgrIntoMainContent-display set to block");
+            mainContent.appendChild(navigationContainer);
+            
+            
+        }
+        
+        function setChildWidth(parentDiv, childDivs) {
+            const parentWidth = parentDiv.offsetWidth;
+            if(canUseForEach(childDivs)){
+                childDivs.forEach(child => {
+                    child.style.width = `${parentWidth}px`;
+                });
+            }else{
+                childDivs.style.width = `${parentWidth}px`;
+            }
+            
+        }
+        function setChildSpacing(childDivs, spacing) {
+            childDivs.forEach((child, index) => {
+                if (index !== childDivs.length - 1) {
+                child.style.marginBottom = `${spacing}px`;
+                }
+            });
+        }
+        function canUseForEach(obj) {
+           return obj !== null && typeof obj === 'object' && typeof obj.forEach === 'function';
+        }
+
+
+        function setSidebarTopItems(index){
+            sidebarTopContainer;
+            if(index === 0){//知识管理
+                const knowledgeMgrSubItems = [{"id":1,"title":"文档"},{"id":2,"title":"召回测试"},{"id":3,"title":"设置"}]
+                const ul = document.createElement("ul");
+                for(let i = 0; i < knowledgeMgrSubItems.length; i++){
+                    const li = document.createElement("li");
+                    li.textContent = knowledgeMgrSubItems[i].title;
+                    li.onclick = function(){
+                        //点击子菜单项，设置mainContent的内容
+                        if(knowledgeMgrSubItems[i].id === 1){
+                            mainContent.innerHTML = "文档";
+                        }else if(knowledgeMgrSubItems[i].id === 2){
+                            mainContent.innerHTML = recall_test;
+                        }else if(knowledgeMgrSubItems[i].id === 3){
+                            mainContent.innerHTML = "设置";
+                        }
+                    }
+                    ul.appendChild(li);
+                }
+        }else if(index === 1){//质量评估
+
+        }else if(index === 2){//登录
+
+        }else {
+
+        }
+    }
+         //收起或展开侧边栏
+    function toggleSidebar() {
+        sidebar.classList.toggle('visible');
+        const leftSidebarToggleIcon = document.getElementById('sidebar-toggle');
+        const newSessionBtninMain = document.getElementById('create-new-session-in-main-content');
+        if (sidebar.classList.contains('visible')) {
+            if (detectDevice() === 'mobile') {
+                sidebarToggle.style.left = '0px';
+            }else{
+                sidebarToggle.style.left = '200px'; // 侧边栏展开时，按钮在侧边栏右侧
+                newSessionBtninMain.style.display = 'none';
+            }
+        } else {
+            if (detectDevice() === 'mobile') {
+                sidebarToggle.style.left = '35px';
+            }else{
+                sidebarToggle.style.left = '200px'; // 侧边栏隐藏时，按钮在屏幕左侧
+                newSessionBtninMain.style.display = 'block';
+                newSessionBtninMain.style.left = '260px';
+            }
+        }
+    }
+
+
+       
+        //初始化知识库列表
+        const knowledgeLib_ =  document.getElementById('knowledgeLibListContainer');
+        knowledgeLibList.forEach((item, index) => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = (index === 0) ? 'knowledge-lib-list-item_disabled':'knowledge-lib-list-item';
+            itemDiv.dataset.itemId = item.id;
+            const row1 = document.createElement('div');
+            row1.className = 'knowledge-lib-list-row1';
+            const icon = document.createElement('i');
+            icon.className = 'fa-solid fa-folder';
+            const titleSpan = document.createElement('span');
+            titleSpan.className = 'row1-text';
+            titleSpan.textContent = item.title;
+            row1.appendChild(icon);
+            row1.appendChild(titleSpan);
+            const row2 = document.createElement('div');
+            row2.className = 'knowledge-lib-list-row2';
+            row2.textContent = item.description;
+            const row3 = document.createElement('div');
+            row3.className = 'knowledge-lib-list-row3';
+            row3.textContent = item.description_1;
+            itemDiv.appendChild(row1);
+            itemDiv.appendChild(row2);
+            itemDiv.appendChild(row3);
+
+            itemDiv.addEventListener('click', function() {
+                    // 移除所有项目的选中状态
+                    document.querySelectorAll('.knowledge-lib-list-item').forEach(el => {
+                        el.classList.remove('selected');
+                    });
+                    // 添加当前项目的选中状态
+                    this.classList.add('selected');
+                    //var knowledgeLib_ = document.getElementById('knowledgeLibListContainer');
+                    
+                    if(item.id === 1){//创建知识库
+                        const navigationTabs = document.getElementById('navigationTabs').style.display = 'block';
+                        navigationTabs.style.display = 'block';
+
+                        const tab1 = document.querySelector('[data-tab="tab1"]');
+                        const tab2 = document.querySelector('[data-tab="tab2"]');
+                        
+                        tab1.style.visibility = 'visible';
+                        tab2.style.visibility ="visible"
+                        tab1.textContent ="文件"
+                        tab2.textContent ="数据库";
+                        tab1Content.innerHTML = ''
+                        tab2Content.innerHTML = ''
+                        const uploadfilesContainer = document.getElementById('uploadfiles-container');
+                        uploadfilesContainer.style.display = 'block';
+                        const databaseMgr = document.getElementById('databaseMgr');
+                        databaseMgr.style.display = 'block';
+                        tab1Content.appendChild(uploadfilesContainer);
+                        tab2Content.appendChild(databaseMgr);
+                        document.getElementById('uploadfiles-container').style.display = 'block';
+                        document.getElementById('databaseMgr').style.display = 'block';
+                        console.log('databaseMgr',databaseMgr)
+                        console.log('uploadfilesContainer',uploadfilesContainer)  
+                    }else{
+                        clearMainContent();
+                        const knowledgeDocTableContainer = document.querySelector('.knowledge-lib-doc-table-container');
+                        knowledgeDocTableContainer.style.display = 'block';
+
+                        tab1Content.innerHTML = ''
+                        tab2Content.innerHTML = ''
+                        tab1Content.appendChild(knowledgeDocTableContainer)
+                        tab1Content.innerHTML += RAG_KNOWLEDGE_DOCUMENT_CONF1;
+                        
+                        tab1Content.style.display = 'block';
+                        navigationContainer.style.display = 'block';
+                        mainContent.appendChild(navigationContainer);
+                    }
+                });
+
+            if(item.id !== 1){
+                itemDiv.style.backgroundColor = '';
+            }else{
+                icon.classList.remove("fa-solid");
+                icon.classList.remove("fa-folder");
+                icon.classList.add("fas");
+                icon.classList.add("fa-plus");
+            }
+            icon.style.backgroundColor = "white";
+            icon.style.color = "#0066CC";
+
+            knowledgeLib_.appendChild(itemDiv); 
+        });
+
+        // 登录功能
+        loginButton.addEventListener('click', () => {
+            const verificationCode = verificationCodeInput.value.trim();
+            const username = usernameInput.value.trim();
+            current_user = username;
+            document.getElementById('left-sidebar-bottom-login').innerHTML = `<img id="left-sidebar-bottom-login-icon" src="{{ url_for('static', filename='humanPlus.png') }}" style="width:30px;height:30px;" class="left-icon">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${current_user}`;
+            if (verificationCode === '123456') {
+                loginDialog.style.display = 'none';
+                //overlay.style.display = 'none';
+                if (username === '13683688936') {
+                    // 获取所有<li>元素
+                }
+                document.getElementById('right-sidebar-toggle-icon').src="{{ url_for('static', filename='human.png') }}";
+                document.getElementById('left-sidebar-bottom-login-icon').src="{{ url_for('static', filename='human.png') }}";
+                
+                const element = document.querySelector('#create-new-session-in-main-content');
+                showToast('登录成功')
+                if(element.style.display !== 'none'){
+                    toggleSidebar();
+                    console.log('执行了');
+                }
+            } else {
+                showToast('密码错误，请输入 123456');
+            }
+        });
+
+        function openDialog(content) {
+            showToast(content)
+        };
+
+        // 获取图标和上下文菜单
+        const icon = document.getElementById('session-icon');
+        const contextMenu = document.getElementById('contextMenu');
+
+        // 点击图标时显示上下文菜单
+        icon.addEventListener('click', function (event) {
+            event.preventDefault(); // 防止默认行为
+
+            // 显示上下文菜单并定位到鼠标位置
+            const x = event.clientX;
+            const y = event.clientY;
+
+            contextMenu.style.display = 'block';
+            contextMenu.style.left = `${x}px`;
+            contextMenu.style.top = `${y}px`;
+        });
+
+        //点击页面其他地方时隐藏上下文菜单
+        window.addEventListener('click', function (event) {
+        if (!icon.contains(event.target) && !contextMenu.contains(event.target)) {
+            contextMenu.style.display = 'none';
+        }
+        });
+
+        // 处理上下文菜单选项点击事件
+        contextMenu.addEventListener('click', function (event) {
+        if (event.target.tagName === 'LI') {
+            showToast(`${event.target.textContent}成功`);
+            contextMenu.style.display = 'none'; // 点击后隐藏菜单
+        }
+        });
+
+        function instantiateMessageContainer(){
+            let newMsgContainer = document.createElement('div');
+            newMsgContainer.className = 'message-container';
+            newMsgContainer.id = 'messageContainer';
+
+            newMsgContainer.style.maxWidth = window.innerWidth;
+            newMsgContainer.style.width = '50%';
+
+            return newMsgContainer;
+        }
+        //TODO: 封装实现新会话功能
+        function createNewSession(mainContent) {
+            mainContent.innerHTML = '';
+            
+            const messageTitleContainer = document.createElement('div');
+            messageTitleContainer.className = 'message-title-container';
+            messageTitleContainer.id = 'messageTitleContainer';
+            const newTitleElement = document.createElement('p');
+            newTitleElement.id = 'session-title';
+            newTitleElement.textContent = '新会话';
+            newTitleElement.style.fontWeight = 'bold';
+            const newTitleInput = document.createElement('input');
+            newTitleInput.type = 'text';
+            newTitleInput.id = 'title-input';
+            newTitleInput.setAttribute('maxlength', '30');
+            newTitleInput.style.display = 'none';
+            newTitleElement.addEventListener('click', () => {
+                newTitleInput.value = newTitleElement.textContent;
+                newTitleElement.style.display = 'none';
+                newTitleInput.style.display = 'block';
+                newTitleInput.focus();
+            });
+            newTitleInput.addEventListener('blur', () => {
+                const newTitle = newTitleInput.value.trim() || "新会话";
+                newTitleElement.textContent = newTitle;
+                newTitleInput.style.display = 'none';
+                newTitleElement.style.display = 'block';
+                showToast('会话标题修改成功!')
+            });
+            newTitleInput.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    const newTitle = newTitleInput.value.trim() || "新会话";
+                    newTitleElement.textContent = newTitle;
+                    newTitleInput.style.display = 'none';
+                    newTitleElement.style.display = 'block';
+                    showToast('会话标题修改成功!')
+                }
+            });
+            messageTitleContainer.appendChild(newTitleElement);
+            messageTitleContainer.appendChild(newTitleInput);
+
+
+            mainContent.appendChild(messageTitleContainer);
+
+            
+            mewSessionMsgContainer = instantiateMessageContainer();
+            
+            mainContent.appendChild(mewSessionMsgContainer);
+
+            const inputContainer = document.createElement('div');
+            inputContainer.className = 'input-container';
+            setMainLayout(inputContainer, mewSessionMsgContainer, knowledgeLib_);
+            if(!knowledgeLib_){
+                knowledgeLib_ = document.getElementById('knowledgeLibListContainer');
+            }
+            if (detectDevice() === 'mobile') {
+                inputContainer.style.maxWidth = '600px';
+                inputContainer.style.width = '95%';
+                mewSessionMsgContainer.style.maxWidth = '600px';
+                mewSessionMsgContainer.style.width = '95%';
+                knowledgeLib_.style.maxWidth = '600px';
+                knowledgeLib_.style.width = '95%';
+            } else {
+                inputContainer.style.maxWidth = window.innerWidth;
+                inputContainer.style.width = '35%';
+                knowledgeLib_.style.maxWidth = window.innerWidth;
+                knowledgeLib_.style.width = '65%';
+            }
+            const textInputWithNewSession = document.createElement('textarea');
+            textInputWithNewSession.setAttribute('id', 'textInput');
+            textInputWithNewSession.setAttribute('placeholder', '请输入内容...');
+            const buttonRow = document.createElement('div'); 
+            buttonRow.className = 'button-row';
+            const senMsgButton = document.createElement('button');
+            senMsgButton.style.backgroundColor = '#0066CC';
+            senMsgButton.setAttribute('id', 'new-send-msg-button');
+            senMsgButton.classList.add('button-row-button');
+            
+            // 发送消息时动态修改标题 控制显示home欢迎语
+            isFirstMsg = true;
+            senMsgButton.addEventListener('click', () => {
+                const input = document.getElementById('textInput');
+                if (input.value.trim()) {
+                    const message = input.value.trim();
+                    // 第一条消息修改标题
+                    if (isFirstMsg) {
+                        const newTitle = message.substring(0, 10) || "新会话"; // 取前10个字
+                        document.getElementById('session-title').textContent = newTitle;
+                        messageContainer.innerHTML = '';
+                        addMessage(mewSessionMsgContainer, message, true);
+                        isFirstMsg = false;
+                    }else{
+                        addMessage(mewSessionMsgContainer, message, true);
+                    }
+
+                    // 模拟机器回复
+                    setTimeout(() => {
+                        addMessage(mewSessionMsgContainer, message, false);
+                    }, 500);
+                    input.value = '';
+                    autoExpand(input);
+                }else {
+                    showToast('请输入内容');
+                }
+            });
+            
+            textInputWithNewSession.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault(); // 阻止默认换行行为
+                    senMsgButton.click();
+                }
+            });
+            const icon = document.createElement('i');
+            icon.className = 'fas fa-paper-plane send-icon';
+            icon.style.color = 'white';
+            senMsgButton.appendChild(icon);
+
+            const bottomMenuCtrlBtn = document.createElement("button");
+            bottomMenuCtrlBtn.classList.add('button-row-button');
+            bottomMenuCtrlBtn.id = "bottom-menu-button";
+            bottomMenuCtrlBtn.style.backgroundColor = "#0066CC";
+            const bottomMenuCtlBtnIcon = document.createElement("i");
+            bottomMenuCtlBtnIcon.id = "bottom-menu-button-icon";
+            bottomMenuCtlBtnIcon.className = "fas fa-plus";
+            bottomMenuCtlBtnIcon.style.color = "white";
+            bottomMenuCtrlBtn.appendChild(bottomMenuCtlBtnIcon);
+            bottomMenuCtrlBtn.addEventListener("click", () => {
+                const container = document.querySelector('.input-container');
+                let currentBottom = parseInt(container.style.bottom || '0');
+                if(bottomMenuCtlBtnIcon.className === 'fas fa-plus'){
+                    bottomMenuCtlBtnIcon.classList.remove("fa-plus");
+                    bottomMenuCtlBtnIcon.classList.add("fa-times");
+                    container.style.bottom = (currentBottom + 100) + 'px';
+                }else{
+                    bottomMenuCtlBtnIcon.classList.remove("fa-times");
+                    bottomMenuCtlBtnIcon.classList.add("fa-plus");
+                    container.style.bottom = (currentBottom - 100) + 'px';
+                }
+                if (bottomMenuContainer.style.display === 'none' 
+                    || bottomMenuContainer.style.display === '') {
+                    bottomMenuContainer.style.display = 'flex';
+                } else {
+                    bottomMenuContainer.style.display = 'none';
+                }
+            });
+
+            
+            scrollButton = document.createElement('button');
+            scrollButton.style.display = 'none';
+            scrollButton.className = 'scroll-button';
+            // 滚动控制逻辑
+            messageContainer.addEventListener('scroll', () => {
+                const threshold = 50;
+                isAtBottom = messageContainer.scrollHeight - messageContainer.scrollTop - messageContainer.clientHeight < threshold;
+                scrollButton.style.display = 'block';
+            });
+
+            scrollButton.addEventListener('click', () => {
+                if (isAtBottom) {
+                    messageContainer.scrollTop = 0;
+                    scrollButton.innerHTML = '<i class="fas fa-chevron-down" style="color:#0066CC;background-color: transparent;"></i>';
+                } else {
+                    messageContainer.scrollTop = messageContainer.scrollHeight;
+                    scrollButton.innerHTML = '<i class="fas fa-chevron-up" style="color:#0066CC;background-color: transparent;"></i>';
+                }
+                isAtBottom = !isAtBottom;
+            });
+            const scrollButtonIcon = document.createElement('i');
+            scrollButtonIcon.className = 'fas fa-chevron-down';
+            scrollButtonIcon.style.color = 'blue';
+            scrollButtonIcon.style.backgroundColor = 'transparent';
+            scrollButton.appendChild(scrollButtonIcon);
+            
+            inputContainer.appendChild(textInputWithNewSession);
+            inputContainer.appendChild(buttonRow);
+            buttonRow.appendChild(bottomMenuCtrlBtn);
+            buttonRow.appendChild(senMsgButton);
+
+            buttonRow.appendChild(scrollButton);
+
+            mainContent.appendChild(inputContainer);
+
+            console.log('new session UI:',mainContent.innerHTML)
+        }
+
+        // 打开弹窗
+        function openPdfModal(pdfUrl) {
+            const modal = document.getElementById('pdfModal')
+            const embed = document.getElementById('pdfEmbed')
+            embed.src = pdfUrl
+            modal.style.display = 'flex'
+            document.body.style.overflow = 'hidden' // 禁止背景滚动
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            document.getElementById('pdfModal').style.display = 'none'
+            document.body.style.overflow = 'auto'
+        }
+
+        // 点击外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('pdfModal')
+            if (event.target == modal) {
+                closeModal()
+            }
+        }
+
+        document.getElementById('logo-img').src = "{{ url_for('static', filename='li-logo-3.png') }}";
+            
+
+    /**tooltips手机和PC兼容 控制不被屏幕遮挡**/
+    function adjustTooltip(container) {
+      const tooltip = container.querySelector('.tooltip');
+      const rect = tooltip.getBoundingClientRect();
+  
+      // 如果 Tooltip 超出页面顶部，则显示在元素下方
+      if (rect.top < 0) {
+        tooltip.style.bottom = 'auto';
+        tooltip.style.top = '125%';
+      } else {
+        tooltip.style.bottom = '125%';
+        tooltip.style.top = 'auto';
+      }
+    }
+    </script>
+
+    <!-- toast 模式消息提示-->
+    <div class="toast-container">
+        <div class="toast-message" id="toastMessage"></div>
+    </div>
+    <!-- 弹窗结构 -->
+    <div id="pdfModal" class="modal">
+        <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <embed id="pdfEmbed" type="application/pdf" width="100%" height="100%">
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}">
+</head>
+<body>
+    <script> 
+    function changeSrc(index) {
+            // 向父窗口发送消息
+            window.parent.postMessage({
+                action: 'changeSrc',
+                url: "{{ url_for('historysessions') }}?index=" + index
+            }, 'http://127.0.0.1:5000'); // 替换为正确的域名
+    }
+    </script>
+    <div class="session-history-content-wrapper">
+        <h1>历史会话</h1>
+        <p style="color:red;"">VRVisdom 厉害！！！</p>
+        
+        <div class="searach-history-session-container">
+            <input type="text" size=50 style="text-align: center;" placeholder="输入条件搜索历史会话...">
+            <button>搜索</button>
+        </div>
+        <h2>最近</h2>
+        <div class="session-history-centered-div">
+            <table>
+                <tr>
+                    <td class="session-history-col1"><a href="#" onclick="changeSrc(1)">深度学习简介</td>
+                    <td class="session-history-col2">15:50</td>
+                </tr>
+                <tr>
+                    <td class="session-history-col1"><a href="#" onclick="changeSrc(2)">深度求索 V.S. OpenAI谁的大模型更厉害</td>
+                    <td class="session-history-col2">14:50</td>
+                </tr>
+                <tr>
+                    <td class="session-history-col1"><a href="#" onclick="changeSrc(3)">中国的第6代机是真的吗？</td>
+                    <td class="session-history-col2">09:50</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
