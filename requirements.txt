@@ -1,0 +1,15 @@
+flask
+flask_cors
+llama_index
+llama-index-embeddings-ollama
+llama-index-llms-ollama
+psycopg2
+psycopg2-binary
+qdrant_client
+llama_index.vector_stores.qdrant
+llama_index.embeddings.clip
+llama-index-multi-modal-llms-ollama
+llama-index-readers-web
+git+https://github.com/openai/CLIP.git
+selenium
+spacy
