@@ -1,0 +1,60 @@
+#databaseMgr {
+    display:block;
+    width: 96%;
+    height: 96%;
+    max-width: 1200px;
+    height: auto;
+    margin: 5px auto;
+    padding: 5px;
+    border: 0px solid #ccc;
+    border-radius: 12px;
+}
+#dataConn, #databaseList, #knowledge {
+    margin-bottom: 20px;
+}
+#dataConn, #knowledge {
+    display: flex;
+    flex-direction: column;
+}
+#dataConn label, #knowledge label {
+    margin-bottom: 5px;
+}
+#dataConn input, #dataConn select, #knowledge input, #knowledge select, #knowledge button {
+    margin-bottom: 10px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+#databaseList {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+}
+#databaseList table {
+    width: 100%;
+    border-collapse: collapse;
+}
+#databaseList th, #databaseList td {
+    padding: 8px;
+    border: 1px solid #ddd;
+}
+#databaseList th {
+    background-color: #f2f2f2;
+}
+#databaseList button {
+    padding: 5px 10px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+#databaseList button:hover {
+    background-color: #a71d2a;
+}
+#knowledge-input {
+    color: blue;
+}
+#knowledge-output {
+    color: green;
+}

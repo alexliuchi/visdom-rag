@@ -1,0 +1,154 @@
+/* 基础样式重置
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    padding: 2rem;
+    background: #f0f2f5;
+}
+ */
+/* 标签页容器 */
+.config-container {
+    margin-top: 50px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    max-width: 1000px;
+    margin: 0 auto;
+    width: 50%;
+    font-size: 14px;
+}
+
+/* 标签导航 */
+.tab-nav {
+    display: flex;
+    border-bottom: 1px solid #eee;
+    padding: 0 1rem;
+}
+
+.tab-btn {
+    padding: 1rem 2rem;
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-weight: 500;
+    color: #666;
+    transition: all 0.3s;
+}
+
+.tab-btn.active {
+    color: #1890ff;
+    border-bottom: 2px solid #1890ff;
+}
+
+/* 内容区域 */
+.tab-content {
+    padding: 2rem;
+    min-height: 400px;
+}
+
+/* 表单元素样式 */
+.form-section {
+    margin-bottom: 2rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    align-items: center;
+}
+
+.settings-label {
+    font-weight: 500;
+    color: #333;
+}
+
+.settings-input, .settings-select, .settings-textarea {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+}
+
+/* 提示词表格 */
+.prompt-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+}
+
+.prompt-table th,
+.prompt-table td {
+    border: 1px solid #eee;
+    padding: 12px;
+    text-align: left;
+}
+
+.prompt-table th {
+    background: #fafafa;
+}
+
+/* 操作按钮 */
+.settings-action-btn {
+    padding: 6px 12px;
+    margin: 4px;
+    background: #1890ff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.settings-delete-btn {
+    background: #1890ff;
+    color: white;
+}
+.form-row label {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tooltip-icon {
+    width: 16px;
+    height: 16px;
+    background: #1890ff;
+    color: white;
+    border-radius: 50%;
+    text-align: center;
+    font-size: 12px;
+    cursor: help;
+    flex-shrink: 0;
+}
+
+.tooltip-text {
+    visibility: hidden;
+    width: 280px;
+    background: rgba(0,0,0,0.8);
+    color: #fff;
+    text-align: left;
+    padding: 12px;
+    border-radius: 4px;
+    position: absolute;
+    z-index: 100;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    font-weight: normal;
+    line-height: 1.5;
+}
+
+.tooltip-icon:hover + .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}

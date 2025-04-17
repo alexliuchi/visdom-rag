@@ -1,0 +1,58 @@
+.uploadfiles-container {
+    display: none;
+    top:10%;
+    max-width: 900px;
+    width:80%;
+    height:auto;
+    margin: 0 auto;
+    border: 0px solid blue;
+}
+.uploadfiles-file-list {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+.uploadfiles-file-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px solid #ddd;
+}
+.uploadfiles-file-item:last-child {
+    border-bottom: none;
+}
+.uploadfiles-button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+.uploadfiles-button.cancel {
+    background-color: #f44336;
+}
+.uploadfiles-button:hover {
+    opacity: 0.9;
+}
+.uploadfiles-success-message {
+    margin-top: 20px;
+    color: green;
+    display: none;
+}
+.uploadfiles-table {
+    width: 80%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+.uploadfiles-th, .uploadfiles-td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    font-size: 12px;
+}
+.uploadfiles-th {
+    background-color: #f2f2f2;
+}

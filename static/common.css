@@ -1,0 +1,1134 @@
+#sidebar {
+    width: 250px;
+    border:1px solid #f9f9f9;
+    background-color: #F3F5FA;
+    color: black;
+    transition: transform 0.3s ease;
+    transform: translateX(-100%); /* 默认隐藏在屏幕左侧 */
+    position: fixed; /* 固定在左侧 */
+    top: 0;
+    left: 0;
+    z-index: 1000; /* 确保侧边栏在最上层 */
+    height: 100%; /* 让 sidebar 高度占满父容器 */
+    display: flex; /* 使用 flexbox 布局 */
+    flex-direction: column; /* 设置为纵向排列 */
+}
+
+#sidebar-top {
+    flex: 4; /* 占 4/5 的高度 (等同于 80%) */
+}
+#sidebar-bottom {
+    flex: 1; /* 占 1/5 的高度 (等同于 20%) */
+}
+#sidebar.visible {
+    transform: translateX(0); /* 展开侧边栏 */
+}
+
+#sidebar ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#sidebar ul li {
+    padding: 5px 0; /* 上下内边距 */
+    border-bottom: 1px solid #f9f9f9;/*#444;*/
+    cursor: pointer; /* 鼠标悬停时显示手型 */
+    font-size: 14px;
+}
+
+#sidebar-toggle {
+    position: fixed; /* 固定在屏幕左侧 */
+    left: 100px; /* 距离左侧 10px */
+    top: 10px; /* 距离顶部 10px */
+    font-size: 20px; /* 图标大小 */
+    color: #555; /* 图标颜色 */
+    cursor: pointer; /* 鼠标悬停时显示手型 */
+    z-index: 1001; /* 确保图标在最上层 */
+    transition: color 0.3s ease; /* 颜色过渡效果 */
+}
+
+#sidebar-toggle:hover {
+    color: #555; /* 鼠标悬停时改变颜色 */
+}
+
+#create-new-session-in-main-content {
+    display:block;
+    position:fixed;
+    left:35px;
+    top: 0px;
+    margin: 10px;
+    padding: 10px;
+    cursor: pointer;
+    background-color:white;
+    color:#0066CC;
+    border: 1px solid #0066CC;
+    border-radius: 5px;
+    font-size:12px;
+    z-index:2;
+}
+#main-content {
+    flex: 1;
+    top:25px;
+    display: flex;
+    flex-direction: column; /* 垂直排列 */
+    justify-content: flex-start; /* 内容从顶部开始 */
+    align-items: center; /* 内容水平居中 */
+    padding: 20px;
+    background-color: #fff;
+    overflow-y: auto; /* 如果内容过多，允许滚动 */
+    position: relative; /* 确保主内容区域在侧边栏下方 */
+    z-index: 1; /* 主内容区域的层级低于侧边栏 */
+    border: 0px solid #ccc;
+}
+
+#main-content.sidebar-visible {
+    /*margin-left: 250px;  侧边栏展开时，主内容区域右移 */
+    position: relative; /* 确保主内容区域在侧边栏下方 */
+    z-index: 1; /* 主内容区域的层级低于侧边栏 */
+}
+
+.session-history-content-wrapper {
+    text-align: center; /* 水平居中 */
+    height: 90%; /* 设置容器高度为视口高度 */
+    margin-top: 50px;
+}
+.session-history-centered-div {
+    display: inline-block;
+    width: 50%;
+    height: 90%;
+    vertical-align: middle; /* 垂直居中 */
+}
+
+.session-history-centered-div table {
+    margin-top: 5px; /* 垂直居中调整 */
+    border-collapse: collapse;
+    width: 100%; /* 表格宽度占父容器的100% */
+    
+}
+.session-history-col1 {
+    width: 80%;
+}
+.session-history-col2 {
+    width: 20%;
+}
+.session-history-centered-div td, th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+/* 图片样式 */
+.header-image {
+    max-width: 100%; /* 图片最大宽度 */
+    height: auto; /* 高度自适应 */
+    margin-bottom: 1px; /* 与下方内容保持距离 */
+}
+
+/* 遮罩层样式 */
+#overlay {
+    display: none; /* 默认隐藏 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1001; /* 确保遮罩层在对话框下方 */
+}
+
+/* 对话框样式 */
+#info-dialog {
+    display: none; /* 默认隐藏 */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    z-index: 1002; /* 确保对话框在最上层 */
+}
+
+#info-dialog h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#info-dialog p {
+    margin: 0;
+    font-size: 14px;
+}
+
+#info-dialog button {
+    width: 100%;
+    padding: 10px;
+    background-color: #555;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+#info-dialog button:hover {
+    background-color: #444;
+}
+
+/* 遮罩层样式 */
+#overlay {
+    display: none; /* 默认隐藏 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1001; /* 确保遮罩层在对话框下方 */
+}
+.highlight {
+    background-color: yellow;
+    font-weight: bold;
+}
+
+.buttons {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 10px;
+}
+
+.copy-button, .download-button, .close-button  {
+    padding: 4px 8px;/* 调整关闭按钮的内边距 */
+    font-size: 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.copy-button i, .download-button i, .close-button i {
+    margin-right: 3px;
+}
+/* 隐藏默认的展开/折叠图标 */
+details summary {
+    list-style: none;
+    display: flex;
+    align-items: center; /* 垂直居中对齐 */
+    cursor: pointer;
+    position: relative;
+    padding: 0.5em;
+}
+
+/* 移除默认箭头 */
+details summary::-webkit-details-marker {
+    display: none;
+}
+
+/* 自定义图标样式 */
+summary::after {
+    content: ''; /* 默认显示向下箭头 (fa-angle-down) */
+    font-family: 'Font Awesome 6 Free'; /* 使用 Font Awesome 字体 */
+    font-weight: 900; /* 确保图标正常显示 */
+    font-size: 1em;
+    margin-left: 0.5em; /* 与文本留出间距 */
+    transition: transform 0.3s ease; /* 添加平滑过渡效果 */
+}
+
+/* 展开时更换为向上箭头 (fa-angle-up) */
+details[open] summary::after {
+    content: '';
+}
+
+#sidebar summary {
+    list-style: none; /* 移除默认列表样式 */
+    padding: 0;
+    margin: 0;
+    left:15px;
+}
+
+#sidebar summary li {
+    display: flex;
+    justify-content: space-between; /* 内容左右分布 */
+    align-items: center; /* 垂直居中 */
+    margin-right: 10px;
+    left:15px;
+    position: relative; /* 为绝对定位的图标提供参考 */
+    padding:5px 0;
+}
+
+ul {
+    list-style: none; /* 移除默认列表样式 */
+    padding: 0;
+    margin: 0;
+}
+
+li {
+    display: flex;
+    justify-content: space-between; /* 内容左右分布 */
+    align-items: center; /* 垂直居中 */
+    margin-right: 10px;
+    left:15px;
+    padding: 5px 0; /* 上下内边距 */
+    position: relative; /* 为绝对定位的图标提供参考 */
+    margin-bottom: 1px; /* 添加底部间距 */
+}
+
+/* 左侧图标 */
+.left-icon {
+    position: absolute;
+    left: -5px; /* 对齐外部 div 的左边缘 */
+}
+
+/* 右侧图标 */
+.right-icon {
+    position: absolute;
+    right: 30px;  /*对齐外部 div 的右边缘 */
+}
+
+.searach-history-session-container {
+    position: relative; /* 设置容器为相对定位 */
+    display: inline-block; /* 让容器根据内容调整大小 */
+    border: 2px solid #ccc; /* 输入框的边框 */
+    border-radius: 4px; /* 圆角效果 */
+    overflow: hidden; /* 确保内容不会溢出 */
+    text-align: left;
+}
+
+.searach-history-session-container input {
+    border: none; /* 移除输入框的默认边框 */
+    outline: none; /* 移除聚焦时的默认边框 */
+    padding: 8px 40px 8px 12px; /* 为按钮留出右侧空间 */
+    width: calc(100% - 40px); /* 输入框宽度减去按钮宽度 */
+    box-sizing: border-box; /* 包括内边距和边框在内计算宽度 */
+}
+
+.searach-history-session-container button {
+    position: absolute; /* 按钮绝对定位 */
+    top: 0; /* 按钮顶部对齐容器顶部 */
+    right: 0; /* 按钮右边缘对齐容器右边缘 */
+    bottom: 0; /* 按钮底部对齐容器底部 */
+    background-color: #007BFF; /* 按钮背景色 */
+    color: white; /* 按钮文字颜色 */
+    border: none; /* 移除按钮的默认边框 */
+    padding: 8px 16px; /* 按钮内边距 */
+    cursor: pointer; /* 鼠标悬停时显示手型 */
+    border-top-right-radius: 4px; /* 右上角圆角 */
+    border-bottom-right-radius: 4px; /* 右下角圆角 */
+}
+
+.searach-history-session-container button:hover {
+    background-color: #0056b3; /* 悬停时的背景色 */
+}
+/* 隐藏上下文菜单 */
+.context-menu {
+    display: none;
+    position: absolute;
+    background-color: white;
+    border: 0px solid #ccc;
+    border-radius: 8px; /* 圆角 */
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    padding: 1px;
+    z-index: 1000;
+}
+.context-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.context-menu li {
+    padding: 5px 10px;
+    cursor: pointer;
+}
+.context-menu li:hover {
+    background-color: #f0f0f0;
+}
+
+/* 登录对话框样式 */
+.login-dialog-container {
+    display: none; /* 默认隐藏 */
+    position: fixed; /* 固定定位 */
+    top: 0;
+    left: 0;
+    width: 100%; /* 占满整个页面宽度 */
+    height: 100%; /* 占满整个页面高度 */
+    background-color: rgba(0, 0, 0, 0.5); /* 背景遮罩效果 */
+    justify-content: center; /* 水平居中 */
+    align-items: center; /* 垂直居中 */
+    z-index: 1000; /* 确保对话框在最上层 */
+}
+
+/* 定义对话框 */
+.login-dialog-box {
+    width: 255px; /* 宽度为页面宽度的 30% */
+    height: 220px; /* 高度为页面高度的 30% */
+    background-color: white; /* 背景色 */
+    border-radius: 8px; /* 圆角 */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* 阴影效果 */
+    text-align: center; /* 内容居中 */
+    padding: 20px; /* 内边距 */
+    box-sizing: border-box; /* 包括内边距和边框在宽高中 */
+}
+
+/* main content主内容区层的样式 */
+.main-content-container {
+    display: flex;
+    left: 30%;
+    /*  position: relative;  设置为相对定位 */
+    /**width: 100%;
+    height: 100%;
+    background-color: #f9f9f9;
+    **/
+    
+    border: 0px dashed #ccc;
+    
+    padding: 10px; /* 内边距，确保内容不紧贴边界 */
+    box-sizing: border-box; /* 包含内边距和边框 */
+}
+
+/* 聊天窗口样式 */
+/* 标题容器样式 */
+.message-title-container {
+    width: 90%;
+    max-width: 500px;
+    margin: 0 auto;
+    height: 15px;
+    border-bottom: 0px solid #ddd;
+    border: 0px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+/* 标题文字样式 */
+#session-title {
+    top:5px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #666;
+    margin: 0;
+    padding: 0;
+    line-height: 15px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/* 标题编辑输入框样式 */
+.message-title-container input {
+    width: 100%;
+    text-align: center;
+    border: none;
+    outline: none;
+    background: transparent;
+    font: inherit;
+}
+/* 新增标题编辑框样式 */
+#title-input {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    text-align: center;
+    border: 1px solid #007bff;
+    border-radius: 4px;
+    padding: 2px 8px;
+    display: none;
+}
+/* 新增消息容器样式 */
+.message-container {
+    /*width: 90%;*/
+    /*max-width: 500px;*/
+    margin: 5px auto 20px;/*上下间距 左右间距*/
+    height: calc(100vh - 200px);
+    /*overflow-y: auto;*/
+    border: 0px solid #ddd;
+    border-radius: 12px;
+    padding: 2px;
+    margin-top:1px;
+    position: relative;
+    /*margin-right: 20px;  留出空间给自定义滚动条 */
+    overflow-y: hidden; /* 隐藏原生滚动条 */
+    font-size: 14px;/*聊天框字体大小*/
+}
+
+.message-container::before {
+    position: absolute;
+    top: -0px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    padding: 0 10px;
+    color: #666;
+}
+
+/* 消息气泡样式 */
+.message-bubble {
+    max-width: 80%;
+    margin: 2px 0;
+    padding: 12px 2px;
+    border-radius: 15px;
+    word-break: break-word;
+}
+
+.user-message {
+    background: #F3F5FA;
+    color: black;
+    margin-left: auto;
+}
+
+.bot-message {
+    background: white;
+    margin-right: auto;
+}
+
+.loading {
+    color: #666;
+    font-style: italic;
+}
+
+/* 滚动按钮样式 */
+.scroll-button {
+    position: fixed;
+    bottom: 120px;
+    right: calc(10% + 20px);
+    padding: 8px;
+    border-radius: 50%;
+    background: #007bff;
+    background-color: transparent;
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* 原输入容器调整 */
+.input-container {
+    position: fixed;
+    /*bottom: 50%;*/ /* 调整输入框位置 */
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    padding: 5px;
+    transition: all 0.3s ease;
+    /*max-width: 500px;*/
+    width: 90%;
+}
+
+/* 文本输入区域 */
+#textInput {
+    width: 95%;
+    min-height: 48px; /* 初始行高 */
+    resize: none;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    line-height: 1.5;
+    padding: 10px;
+    padding-bottom: 0px;
+    overflow-y: auto;
+    font-family: Arial, sans-serif;
+}
+
+/* 按钮容器 */
+.button-row {
+    display: flex;
+    justify-content: right;
+    /*padding: 5px;/*靠近外边框的距离
+    gap: 10px; /*控制子元素间的水平间距 */
+    margin-top: 0px;
+}
+.left-item {
+    margin-right: auto;  /*将左边的项目推到左边 */
+    padding-left:10px;
+    margin-bottom: 5px; /* 下边距 */
+    margin-left: 5px;    /* 左边距 */
+}
+
+.right-item {
+    margin-left: 10px; /* 右边的项目间距 */
+}
+
+/* 按钮样式 */
+.button-row-button {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    background: #f8f9fa;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.button-row-button:hover {
+    background: #e9ecef;
+}
+
+/* 移动端特定样式 */
+@media (max-width: 1200px) {
+    .input-container {
+        max-width: 1200px;
+        width: 95%;
+    }
+}
+
+ /* 自定义滚动条样式 */
+.custom-scrollbar {
+    position: fixed; /* 固定在浏览器右边框 */
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 15px;
+    background-color: rgba(0, 0, 0, 0); /* 初始透明 */
+    transition: background-color 0.3s ease; /* 平滑过渡效果 */
+}
+
+.custom-scrollbar:hover {
+    background-color: rgba(0, 0, 0, 0.1); /* 鼠标悬停时显示 */
+}
+
+.custom-scrollbar-thumb {
+    background-color: rgba(136, 136, 136, 0); /* 初始透明 */
+    width: 5px;
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    height: 50px; /* 固定滑块高度 */
+    transition: background-color 0.3s ease; /* 平滑过渡效果 */
+}
+
+.custom-scrollbar.show .custom-scrollbar-thumb {
+    background-color: rgba(136, 136, 136, 1); /* 显示时的颜色 */
+}
+
+/* 禁用文本选择的类 */
+.no-select {
+    user-select: none; /* 禁用文本选择 */
+    -webkit-user-select: none; /* 兼容 WebKit 浏览器 */
+    -moz-user-select: none; /* 兼容 Firefox */
+    -ms-user-select: none; /* 兼容 IE/Edge */
+}
+
+/*机器回答消息最底部放ICONS的容器 */
+.bot-message-bottom-container {
+    display: flex;
+    justify-content: space-between; /* 左右对齐 */
+    align-items: center; /* 垂直居中对齐 */
+    width: 100%;
+}
+
+/* 右对齐图标的容器 */
+.bot-message-bottom-right-icons {
+    display: flex; /* 让图标水平排列 */
+    gap: 10px; /* 图标之间的间距 */
+}
+.message-container ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.message-container ul li {
+    padding: 3px;
+    border-bottom: 1px solid #f9f9f9;/*#444;*/
+    margin-bottom: 1px; /* 添加底部外边距 */
+    cursor: pointer; /* 鼠标悬停时显示手型 */
+}
+
+.message-container ul li:hover {
+    background-color: #F3F5FA;
+}
+
+/* 移动端Message-container容器内的上下文菜单 */
+.message-container-context-menu {
+    position: fixed;
+    display: none;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    padding: 8px 0;
+    min-width: 120px;
+}
+.message-container-context-menu-item {
+    padding: 12px 16px;
+    font-size: 14px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s;
+}
+.message-container-context-menu-item:hover {
+    background: #f5f5f5;
+}
+
+/*** Message-container容器内鼠标move on bubble时出现图标按钮 */
+.action-buttons-wrapper {
+    display: flex; /* 启用弹性布局 */
+    /*align-items: left;  
+    text-align: left;靠右 
+    padding-left: 2px;
+    padding-right: 2px;
+    margin: 5px auto;*/
+    width: fit-content; /* 内容自适应宽度 */
+    max-width: 92%;
+    
+}
+/* 图标容器 */
+.action-buttons {
+    visibility: hidden; /* 初始隐藏 */
+    opacity: 0;
+    transform: translateX(-10px); /* 初始偏移 */
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: row;/*水平排列：row,还是垂直排列:column*/
+    gap: 12px;
+    margin-right: -40px; /* 负边距消除间隔 */
+}
+/* 悬停时显示图标 */
+.action-buttons-wrapper:hover .action-buttons {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(0); /* 移除偏移 */
+}
+/* 图标样式 */
+.action-btn {
+    font-size: 16px;
+    color: #666;
+    background: white;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.2s;
+    text-align: center;
+    width: 36px;
+    height: 35px;
+}
+.action-btn:hover {
+    color: #2196F3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+@media (hover: none) {
+    /* 移动端隐藏右侧常驻图标 */
+    .content-box {
+        cursor: default;
+    }
+}
+/**底部创建新会话按钮*/
+.bottom-new-session-button{
+    width: 300px;
+    height: 50px;
+    position: fixed;
+    left:50%;
+    z-index:9998;
+    bottom: 200px;
+}
+/** toast 消息提示**/
+.toast-container {
+    position: fixed;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+}
+
+.toast-message {
+    display: none; /* 默认隐藏 */
+    background-color: rgba(0, 0, 0, 0.7); /* 深色半透明背景 */
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    max-width: 300px;
+    text-align: center;
+    animation: fadeIn 0.3s, fadeOut 0.3s 3s; /* 淡入淡出动画 */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+/* Open FILES遮罩层 */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.8);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 内容容器 */
+.modal-content {
+    position: relative;
+    background: white;
+    width: 90vw;   /* 移动端优先 */
+    max-width: 800px; /* PC端最大宽度 */
+    height: 80vh;
+    border-radius: 8px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* 关闭按钮 */
+.close {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    font-size: 28px;
+    cursor: pointer;
+    z-index: 1;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .modal-content {
+        height: 70vh;
+        padding: 10px;
+    }
+}
+
+/*左侧新建会话Icon */
+.left-sidebar-toggle {
+    position: relative;
+    display: inline-block;
+    font-size: 12px; /* 图标大小 */
+    background-color: transparent;
+    cursor: pointer;
+    border: none;
+    z-index: 1003; /* 确保按钮在最上层 */
+}
+.left-sidebar-toggle .main-icon {
+    position: relative;
+    border: 0px;
+    z-index: 1; /* 确保主图标在上方 */
+}
+.left-sidebar-toggle .corner-plus {
+    position: absolute;
+    top: -5px; /* 调整垂直位置 */
+    left: 50%; /* 调整水平位置 */
+    font-size: 15px; /* 加号大小 */
+    color: black; /* 加号颜色 */
+    background-color: transparent; /* 加号背景色 */
+    border-radius: 50%; /* 圆形背景 */
+    width: 16px; /* 背景宽度 */
+    height: 20px; /* 背景高度 */
+    line-height: 16px; /* 垂直居中 */
+    text-align: center; /* 水平居中 */
+    z-index: 2; /* 确保加号在最上方 */
+    border:0px;
+}
+/*右侧列表展开/隐藏按钮 */
+.right-sidebar-toggle {
+    top: 0%;
+    right: 0px;
+    position: relative;
+    display: inline-block;
+    font-size: 24px; /* 图标大小 */
+    background-color: transparent;
+    color:#0066CC;
+    cursor: pointer;
+    border: none;
+    z-index: 1003; /* 确保按钮在最上层 */
+}
+/* 主图标：far fa-comment-dots */
+.right-sidebar-toggle .main-icon {
+    position: relative;
+    z-index: 1; /* 确保主图标在上方 */
+}
+/* 右上角加号图标 */
+.right-sidebar-toggle .corner-plus {
+    position: absolute;
+    top: -5px; /* 调整垂直位置 */
+    left: 50%; /* 调整水平位置 */
+    font-size: 12px; /* 加号大小 */
+    color: black; /* 加号颜色 */
+    background-color: transparent; /* 加号背景色 */
+    border-radius: 50%; /* 圆形背景 */
+    width: 16px; /* 背景宽度 */
+    height: 16px; /* 背景高度 */
+    line-height: 16px; /* 垂直居中 */
+    text-align: center; /* 水平居中 */
+    z-index: 2; /* 确保加号在最上方 */
+}
+.right-sidebar-toggle:hover {
+    color: #555;
+}
+
+ /**tooltips手机和PC兼容**/
+.tooltip-container {
+    position: relative;
+    display: inline-block;
+}      
+.tooltip {
+    visibility: hidden;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 4px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+.tooltip-container:hover .tooltip {
+    visibility: visible;
+}
+
+#modeSelectionContextMenu {
+    position: absolute; /* 绝对定位，相对于容器 */
+    top: -100%; /* 初始化为隐藏 */
+    left: 0;
+    width:600px;
+    height:350px;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    
+    padding: 5px;
+    z-index: 1004; /* 确保菜单在上方 */
+    transform: translateY(-100%); /* 菜单在按钮上方 */
+    display:none;
+}
+
+
+/* 知识库管理容器 */
+.knowledge-lib-list-container {
+    top: 0;
+    left:0;
+    display: none;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+    max-width: 95%;
+    margin: 0 auto;
+    border: 0px solid blue;
+}
+
+.knowledge-lib-list-item {
+    width: 200px;
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.knowledge-lib-list-item:hover {
+    transform: translateY(-5px);
+}
+
+.knowledge-lib-list-item_disabled {
+    width: 200px;
+    padding: 15px;
+    border: 1px solid #f5f5f5;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+    box-sizing: border-box;
+    cursor: pointer;
+    background-color: #F3F5FA;
+}
+
+.knowledge-lib-list-row1 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.knowledge-lib-list-fa-folder {
+    font-size: 24px;
+    color: #6c757d;
+}
+
+.knowledge-lib-list-row1-text {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.knowledge-lib-list-row2 {
+    font-size: 8px;
+    color: #666;
+    line-height: 1.4;
+}
+
+.knowledge-lib-list-row3 {
+    font-size: 8px;
+    color: #666;
+    line-height: 1.4;
+}
+
+.knowledge-lib-list-selected {
+    background-color: #e3f2fd;
+    border-color: #2196f3;
+}
+
+/* 底部菜单 */
+.bottom-menu-container {
+    display: none;
+    position: fixed;
+    flex-wrap: wrap; /* 允许换行 */
+    justify-content: flex-start; /* 左对齐 */
+    max-width: 1200px; /* 固定容器宽度 */
+    height: 100px;
+    padding: 0px;
+    background-color: white;
+    left: 50%;
+    transform: translateX(-50%); /* 调整水平偏移 */
+    z-index: 2;
+    bottom: 0px;
+    border: 0px solid black;
+    background: transparent;/*全透明*/
+}
+
+/* 每个正方形和文字说明的包装容器 */
+.bottom-menu-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 水平居中 */
+    margin: 20px; /* 间距 */
+}
+
+/* 正方形样式 */
+.bottom-menu-square {
+    width: 50px; /* 正方形宽度 */
+    height: 50px; /* 正方形高度 */
+    background-color: white; /* 背景颜色 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 0.5px solid #0066CC;
+}
+
+/* 图标样式 */
+.bottom-menu-square i {
+    font-size: 2.5em; /* 图标大小 */
+    color: #0066CC; /* 图标颜色 */
+}
+
+/* 文字说明样式 */
+.bottom-menu-label {
+    margin-top: 1px; /* 文字与正方形的间距 */
+    font-size: 14px;
+    color: #333; /* 文字颜色 */
+    text-align: center;
+}
+
+.modal-mask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    z-index: 999;
+}
+
+.modal-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 60%;
+    height: 80%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    padding: 20px;
+    min-width: 60%;
+    max-width: 90%;
+    max-height: 90%;
+    overflow: auto;
+}
+
+.modal-close {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    cursor: pointer;
+    font-size: 24px;
+}
+
+#preview {
+    width:95%;
+    height:95%;
+    margin-top: 20px;
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+#pdf-canvas {
+    border: 1px solid black;
+}
+ /* 新增 Word 内容样式 */
+ .word-content {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    padding: 20px;
+}
+.word-content table {
+    border-collapse: collapse;
+    margin: 10px 0;
+}
+.word-content td, .word-content th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+#loading {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+.file-view-button {
+    padding: 5px 15px;
+    margin: 0 5px;
+    cursor: pointer;
+}
+/* 添加过渡动画 */
+#pdf-canvas {
+    transition: transform 0.3s ease;
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+    #pdf-canvas {
+        width: 100%!important;
+        height: auto!important;
+    }
+}
+img.preview-img {
+    max-width: 100%;
+    max-height: 600px;
+    display: block;
+    margin: 0 auto;
+}

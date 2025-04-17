@@ -1,0 +1,114 @@
+/* 标签页容器 */
+.kb-mgr-container {
+    margin-top: 50px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    max-width: 1000px;
+    margin: 0 auto;
+    width: 50%;
+    font-size: 14px;
+}
+
+/* 标签导航 */
+.kb-mgr-tab-nav {
+    display: flex;
+    border-bottom: 1px solid #eee;
+    padding: 0 1rem;
+}
+
+.kb-mgr-tab-btn {
+    padding: 1rem 2rem;
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-weight: 500;
+    color: #666;
+    transition: all 0.3s;
+}
+
+.kb-mgr-tab-btn.active {
+    color: #1890ff;
+    border-bottom: 2px solid #1890ff;
+}
+
+/* 内容区域 */
+.kb-mgr-tab-content {
+    padding: 2rem;
+    min-height: 400px;
+}
+
+ /* 知识库管理容器 */
+ .knowledge-lib-list-container {
+    top: 0;
+    left:0;
+    display: none;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+    max-width: 95%;
+    margin: 0 auto;
+    border: 0px solid blue;
+}
+
+.knowledge-lib-list-item {
+    width: 200px;
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+    box-sizing: border-box;
+    cursor: pointer;
+    background-color: #F3F5FA;
+}
+
+.knowledge-lib-list-item_disabled {
+    width: 200px;
+    padding: 15px;
+    border: 1px solid #f5f5f5;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+    box-sizing: border-box;
+    cursor: pointer;
+    background-color: white;
+}
+
+.knowledge-lib-list-item:hover {
+    transform: translateY(-5px);
+}
+
+.knowledge-lib-list-row1 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.knowledge-lib-list-fa-folder {
+    font-size: 24px;
+    color: #6c757d;
+}
+
+.knowledge-lib-list-row1-text {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.knowledge-lib-list-row2 {
+    font-size: 8px;
+    color: #666;
+    line-height: 1.4;
+}
+
+.knowledge-lib-list-row3 {
+    font-size: 8px;
+    color: #666;
+    line-height: 1.4;
+}
+
+.knowledge-lib-list-selected {
+    background-color: #e3f2fd;
+    border-color: #2196f3;
+}

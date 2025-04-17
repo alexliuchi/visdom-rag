@@ -1,0 +1,77 @@
+#topMainMenu {
+    display: flex;
+    height: 500px;
+    gap: 20px;
+    padding: 15px;
+    font-family: Arial;
+  }
+  
+  .leftMenus {
+    flex: 1;
+    max-width: 30%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .leftMenuContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .scrollButton {
+    padding: 8px;
+    text-align: center;
+    background: #f0f0f0;
+    cursor: pointer;
+    user-select: none;
+  }
+  
+  .menu {
+    flex: 1;
+    overflow: hidden;
+    border: 1px solid #ddd;
+    padding: 5px;
+  }
+  
+  .menuItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin: 4px 0;
+    background: #f8f8f8;
+    cursor: pointer;
+  }
+  
+  .statusIcon {
+    width: 20px;
+    height: 20px;
+    background-size: contain;
+    background-repeat: no-repeat;
+  }
+  
+  .statusIcon.unselected {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="%23666" stroke-width="2"/></svg>');
+  }
+  
+  .statusIcon.selected {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="%2321bf73" stroke="%23199d5c" stroke-width="2"/><path fill="white" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>');
+  }
+  
+  #rightBigMenu {
+    flex: 1;
+    max-width: 70%;
+    border: 1px solid #ddd;
+    padding: 10px;
+  }
+  
+  .rightMenuItem {
+    padding: 15px;
+    margin: 8px 0;
+    background: #e8f4ff;
+    cursor: pointer;
+  }
+
+  
