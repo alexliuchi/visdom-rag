@@ -14,5 +14,9 @@ Also, the console will provide the following features:
 
 
 
+https://github.com/user-attachments/assets/58680331-3d14-4720-aec6-d2ef8d601d2d
+
+
+
 https://github.com/user-attachments/assets/cf2618ff-d130-4d24-b23e-e77ae07725bf
 
