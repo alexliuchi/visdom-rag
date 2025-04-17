@@ -5,5 +5,4 @@ The visdom-rag is a RAG(Retrieval Augmented Generation) console, which is Web-ba
 Also, the console will provide LLM maintainance include LLM generation and LLM finetuning and LLM deployment.
 
 
-Uploading 3.数据库搜索源.mp4…
-
+![1744884883319](https://github.com/user-attachments/assets/24f0e500-adf4-42e5-b3d7-708995726daa)
