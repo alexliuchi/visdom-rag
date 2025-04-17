@@ -8,19 +8,15 @@ Also, the console will provide the following features:
 2. Knowledge graph management
 3. LLM Management maintain LLMs include LLM generation and LLM finetuning and LLM deployment.
 
-
+The demo vedio:
 ![1744884883319](https://github.com/user-attachments/assets/24f0e500-adf4-42e5-b3d7-708995726daa)
 
-
-
-
+1chatbot:
 https://github.com/user-attachments/assets/58680331-3d14-4720-aec6-d2ef8d601d2d
-
-
-
+2 retrieve un-structured data
 https://github.com/user-attachments/assets/a33015b8-5fb0-461b-829f-d0b56053c87e
 
-
+https://github.com/user-attachments/assets/8f4d809f-f4c3-4d59-be25-704764bf660d
 
 https://github.com/user-attachments/assets/cf2618ff-d130-4d24-b23e-e77ae07725bf
 
